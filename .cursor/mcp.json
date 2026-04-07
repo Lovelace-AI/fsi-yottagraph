@@ -1,0 +1,31 @@
+{
+    "mcpServers": {
+        "lovelace-elemental": {
+            "url": "https://mcp.news.prod.g.lovelace.ai/elemental/mcp",
+            "headers": {
+                "Authorization": "Bearer ${AUTH0_M2M_DEV_TOKEN}"
+            }
+        },
+        "lovelace-stocks": {
+            "url": "https://mcp.news.prod.g.lovelace.ai/stocks/mcp",
+            "headers": {
+                "Authorization": "Bearer ${AUTH0_M2M_DEV_TOKEN}"
+            }
+        },
+        "lovelace-wiki": {
+            "url": "https://mcp.news.prod.g.lovelace.ai/wiki/mcp",
+            "headers": {
+                "Authorization": "Bearer ${AUTH0_M2M_DEV_TOKEN}"
+            }
+        },
+        "lovelace-polymarket": {
+            "url": "https://mcp.news.prod.g.lovelace.ai/polymarket/mcp",
+            "headers": {
+                "Authorization": "Bearer ${AUTH0_M2M_DEV_TOKEN}"
+            }
+        },
+        "vuetify-mcp": {
+            "url": "https://mcp.vuetifyjs.com/mcp"
+        }
+    }
+}
