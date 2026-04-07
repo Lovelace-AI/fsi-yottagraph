@@ -45,6 +45,10 @@
                     <v-icon size="16" class="mr-1">mdi-chat-outline</v-icon>
                     Dialogue
                 </v-tab>
+                <v-tab value="compare">
+                    <v-icon size="16" class="mr-1">mdi-compare</v-icon>
+                    Compare
+                </v-tab>
                 <v-tab value="sessions">
                     <v-icon size="16" class="mr-1">mdi-history</v-icon>
                     Sessions
@@ -200,6 +204,83 @@
                     </div>
                 </v-window-item>
 
+                <v-window-item value="compare">
+                    <div class="pa-4">
+                        <div class="mb-4">
+                            <div class="text-body-2 text-grey mb-2">
+                                Compare raw Gemini (no knowledge graph context) vs Gemini with
+                                Elemental data. See how grounding in real data changes the answer.
+                            </div>
+                            <v-text-field
+                                v-model="compareQuestion"
+                                placeholder="e.g. What is the credit risk profile for Delta Air Lines?"
+                                variant="outlined"
+                                density="comfortable"
+                                hide-details
+                                append-inner-icon="mdi-compare"
+                                :loading="comparing"
+                                @keyup.enter="runComparison"
+                                @click:append-inner="runComparison"
+                            />
+                        </div>
+
+                        <v-row v-if="comparisonResult">
+                            <v-col cols="12" md="6">
+                                <v-card color="surface-variant">
+                                    <v-card-title class="text-subtitle-2 d-flex align-center">
+                                        <v-icon size="16" class="mr-1" color="grey"
+                                            >mdi-robot-off-outline</v-icon
+                                        >
+                                        Raw Gemini (no context)
+                                        <v-spacer />
+                                        <v-chip size="x-small" variant="tonal">
+                                            {{ comparisonResult.raw.durationMs }}ms
+                                        </v-chip>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <div
+                                            class="text-body-2"
+                                            style="
+                                                white-space: pre-wrap;
+                                                max-height: 500px;
+                                                overflow-y: auto;
+                                            "
+                                        >
+                                            {{ comparisonResult.raw.response }}
+                                        </div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-card>
+                                    <v-card-title class="text-subtitle-2 d-flex align-center">
+                                        <v-icon size="16" class="mr-1" color="primary"
+                                            >mdi-database-check</v-icon
+                                        >
+                                        With Elemental Context
+                                        <v-spacer />
+                                        <v-chip size="x-small" variant="tonal" color="primary">
+                                            {{ comparisonResult.contextual.durationMs }}ms
+                                        </v-chip>
+                                    </v-card-title>
+                                    <v-card-text>
+                                        <div
+                                            class="text-body-2"
+                                            style="
+                                                white-space: pre-wrap;
+                                                max-height: 500px;
+                                                overflow-y: auto;
+                                            "
+                                        >
+                                            {{ comparisonResult.contextual.response }}
+                                        </div>
+                                    </v-card-text>
+                                </v-card>
+                            </v-col>
+                        </v-row>
+                    </div>
+                </v-window-item>
+
                 <v-window-item value="sessions">
                     <div class="pa-4">
                         <v-progress-circular v-if="sessionsLoading" indeterminate color="primary" />
@@ -340,6 +421,9 @@
     const chatInput = ref('');
     const sessions = ref<any[]>([]);
     const sessionsLoading = ref(false);
+    const compareQuestion = ref('');
+    const comparing = ref(false);
+    const comparisonResult = ref<any>(null);
 
     const suggestions = [
         'What is the risk profile for Microsoft?',
@@ -396,6 +480,28 @@
             sessions.value = [];
         }
         sessionsLoading.value = false;
+    }
+
+    async function runComparison() {
+        if (!compareQuestion.value.trim()) return;
+        comparing.value = true;
+        comparisonResult.value = null;
+        try {
+            comparisonResult.value = await $fetch('/api/v2/agents/compare', {
+                method: 'POST',
+                body: { question: compareQuestion.value.trim() },
+            });
+        } catch (e: any) {
+            comparisonResult.value = {
+                question: compareQuestion.value,
+                raw: { response: 'Error: ' + (e.message || 'Request failed'), durationMs: 0 },
+                contextual: {
+                    response: 'Error: ' + (e.message || 'Request failed'),
+                    durationMs: 0,
+                },
+            };
+        }
+        comparing.value = false;
     }
 
     async function sendChat() {
