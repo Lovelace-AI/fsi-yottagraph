@@ -1,150 +1,156 @@
 <template>
-    <div class="home-page">
-        <div class="home-content">
-            <div class="hero-section">
-                <img src="/LL-logo-full-wht.svg" alt="Lovelace" class="hero-logo" />
-                <h1 class="hero-title">{{ appName || 'Welcome to Aether' }}</h1>
-                <p class="hero-subtitle">Your AI-powered workspace is ready.</p>
+    <div class="d-flex flex-column fill-height">
+        <div class="flex-shrink-0 pa-6 pb-2">
+            <PageHeader title="Projects" subtitle="Create and manage entity monitoring lists" />
+        </div>
+
+        <div class="flex-grow-1 overflow-y-auto pa-6 pt-2">
+            <div class="d-flex align-center mb-4">
+                <v-btn color="primary" prepend-icon="mdi-plus" @click="showCreate = true">
+                    New Project
+                </v-btn>
+                <v-spacer />
+                <v-chip v-if="projects.length" variant="tonal" size="small">
+                    {{ projects.length }} project{{ projects.length === 1 ? '' : 's' }}
+                </v-chip>
             </div>
 
-            <div class="getting-started">
-                <h2 class="section-title">Getting Started</h2>
-                <div class="steps-grid">
-                    <div class="step-item">
-                        <span class="step-number">1</span>
-                        <div>
-                            <div class="step-title">Describe what you want</div>
-                            <div class="step-desc">
-                                Edit <code>DESIGN.md</code> with your project vision. The AI agent
-                                reads this first to understand what to build.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="step-item">
-                        <span class="step-number">2</span>
-                        <div>
-                            <div class="step-title">Build it</div>
-                            <div class="step-desc">
-                                Run <code>/build_my_app</code> in Cursor. The agent will design and
-                                implement your app based on the brief.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="step-item">
-                        <span class="step-number">3</span>
-                        <div>
-                            <div class="step-title">Deploy</div>
-                            <div class="step-desc">
-                                Push to main to auto-deploy on Vercel. Use
-                                <code>/deploy_agent</code> or <code>/deploy_mcp</code> for backend
-                                services.
-                            </div>
-                        </div>
-                    </div>
+            <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-8" />
+
+            <v-alert v-else-if="error" type="error" variant="tonal" class="mb-4">
+                {{ error }}
+            </v-alert>
+
+            <div v-else-if="projects.length === 0" class="text-center pa-12">
+                <v-icon size="64" color="grey-darken-1" class="mb-4"
+                    >mdi-folder-plus-outline</v-icon
+                >
+                <div class="text-h6 text-grey mb-2">No projects yet</div>
+                <div class="text-body-2 text-grey-darken-1 mb-4">
+                    Create a project to start monitoring entities for credit risk.
                 </div>
+                <v-btn color="primary" prepend-icon="mdi-plus" @click="showCreate = true">
+                    Create Your First Project
+                </v-btn>
             </div>
+
+            <v-row v-else>
+                <v-col v-for="project in projects" :key="project.id" cols="12" sm="6" md="4">
+                    <v-card class="cursor-pointer" hover @click="handleSelect(project)">
+                        <v-card-title class="d-flex align-center">
+                            <v-icon color="primary" size="20" class="mr-2"
+                                >mdi-folder-outline</v-icon
+                            >
+                            {{ project.name }}
+                        </v-card-title>
+                        <v-card-subtitle v-if="project.description">
+                            {{ project.description }}
+                        </v-card-subtitle>
+                        <v-card-text>
+                            <v-chip size="x-small" variant="tonal" class="mr-1">
+                                Created {{ formatDate(project.createdAt) }}
+                            </v-chip>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn
+                                size="small"
+                                color="primary"
+                                variant="text"
+                                @click.stop="handleSelect(project)"
+                            >
+                                Open
+                            </v-btn>
+                            <v-spacer />
+                            <v-btn
+                                size="small"
+                                color="error"
+                                variant="text"
+                                icon="mdi-delete-outline"
+                                @click.stop="handleDelete(project.id)"
+                            />
+                        </v-card-actions>
+                    </v-card>
+                </v-col>
+            </v-row>
         </div>
+
+        <v-dialog v-model="showCreate" max-width="500">
+            <v-card>
+                <v-card-title>New Project</v-card-title>
+                <v-card-text>
+                    <v-text-field
+                        v-model="newName"
+                        label="Project name"
+                        placeholder="e.g. Q2 Credit Review"
+                        autofocus
+                        @keyup.enter="handleCreate"
+                    />
+                    <v-textarea
+                        v-model="newDescription"
+                        label="Description (optional)"
+                        rows="2"
+                        placeholder="Brief description of this monitoring project"
+                    />
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn variant="text" @click="showCreate = false">Cancel</v-btn>
+                    <v-btn
+                        color="primary"
+                        :disabled="!newName.trim()"
+                        :loading="creating"
+                        @click="handleCreate"
+                    >
+                        Create
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <script setup lang="ts">
-    const { appName } = useAppInfo();
+    const { projects, loading, error, fetchProjects, createProject, selectProject, deleteProject } =
+        useProject();
+    const router = useRouter();
+
+    const showCreate = ref(false);
+    const newName = ref('');
+    const newDescription = ref('');
+    const creating = ref(false);
+
+    onMounted(() => {
+        fetchProjects();
+    });
+
+    async function handleCreate() {
+        if (!newName.value.trim()) return;
+        creating.value = true;
+        const project = await createProject(newName.value.trim(), newDescription.value.trim());
+        creating.value = false;
+        if (project) {
+            showCreate.value = false;
+            newName.value = '';
+            newDescription.value = '';
+            await selectProject(project);
+            router.push('/agents');
+        }
+    }
+
+    async function handleSelect(project: any) {
+        await selectProject(project);
+        router.push('/agents');
+    }
+
+    async function handleDelete(id: string) {
+        await deleteProject(id);
+    }
+
+    function formatDate(iso: string): string {
+        return new Date(iso).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+        });
+    }
 </script>
-
-<style scoped>
-    .home-page {
-        height: 100%;
-        overflow-y: auto;
-        display: flex;
-        justify-content: center;
-        padding: 48px 24px;
-    }
-
-    .home-content {
-        max-width: 720px;
-        width: 100%;
-    }
-
-    .hero-section {
-        text-align: center;
-        margin-bottom: 48px;
-    }
-
-    .hero-logo {
-        height: 2rem;
-        width: auto;
-        margin-bottom: 24px;
-        opacity: 0.6;
-    }
-
-    .hero-title {
-        font-family: var(--font-headline);
-        font-weight: 400;
-        font-size: 2rem;
-        letter-spacing: 0.02em;
-        margin-bottom: 8px;
-    }
-
-    .hero-subtitle {
-        color: var(--lv-silver);
-        font-size: 1.1rem;
-    }
-
-    .getting-started {
-        margin-bottom: 48px;
-    }
-
-    .section-title {
-        font-family: var(--font-headline);
-        font-weight: 400;
-        font-size: 1.1rem;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: var(--lv-silver);
-        margin-bottom: 20px;
-    }
-
-    .steps-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .step-item {
-        display: flex;
-        gap: 16px;
-        align-items: flex-start;
-    }
-
-    .step-number {
-        flex-shrink: 0;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: var(--lv-surface);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: var(--font-mono);
-        font-size: 0.8rem;
-        color: var(--lv-green);
-        margin-top: 2px;
-    }
-
-    .step-title {
-        font-weight: 500;
-        margin-bottom: 2px;
-    }
-
-    .step-desc {
-        color: var(--lv-silver);
-        font-size: 0.875rem;
-        line-height: 1.4;
-    }
-
-    .step-desc code {
-        font-size: 0.85em;
-        padding: 1px 5px;
-    }
-</style>

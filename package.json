@@ -22,6 +22,7 @@
         ]
     },
     "dependencies": {
+        "@google/generative-ai": "^0.24.1",
         "@hapi/iron": "^7.0.1",
         "@tanstack/vue-virtual": "^3.13.8",
         "@upstash/redis": "^1.37.0",

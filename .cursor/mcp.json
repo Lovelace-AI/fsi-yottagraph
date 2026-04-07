@@ -1,28 +1,16 @@
 {
     "mcpServers": {
         "lovelace-elemental": {
-            "url": "https://mcp.news.prod.g.lovelace.ai/elemental/mcp",
-            "headers": {
-                "Authorization": "Bearer ${AUTH0_M2M_DEV_TOKEN}"
-            }
+            "url": "https://broadchurch-portal-194773164895.us-central1.run.app/api/mcp/org_uQoJEpEKZVIAlk05/elemental/mcp"
         },
         "lovelace-stocks": {
-            "url": "https://mcp.news.prod.g.lovelace.ai/stocks/mcp",
-            "headers": {
-                "Authorization": "Bearer ${AUTH0_M2M_DEV_TOKEN}"
-            }
+            "url": "https://broadchurch-portal-194773164895.us-central1.run.app/api/mcp/org_uQoJEpEKZVIAlk05/stocks/mcp"
         },
         "lovelace-wiki": {
-            "url": "https://mcp.news.prod.g.lovelace.ai/wiki/mcp",
-            "headers": {
-                "Authorization": "Bearer ${AUTH0_M2M_DEV_TOKEN}"
-            }
+            "url": "https://broadchurch-portal-194773164895.us-central1.run.app/api/mcp/org_uQoJEpEKZVIAlk05/wiki/mcp"
         },
         "lovelace-polymarket": {
-            "url": "https://mcp.news.prod.g.lovelace.ai/polymarket/mcp",
-            "headers": {
-                "Authorization": "Bearer ${AUTH0_M2M_DEV_TOKEN}"
-            }
+            "url": "https://broadchurch-portal-194773164895.us-central1.run.app/api/mcp/org_uQoJEpEKZVIAlk05/polymarket/mcp"
         },
         "vuetify-mcp": {
             "url": "https://mcp.vuetifyjs.com/mcp"
