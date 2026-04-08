@@ -7,7 +7,13 @@ An **agent-first credit risk monitoring platform** where a 4-agent pipeline (Dia
 **Created:** 2026-04-07
 **App ID:** fsi
 **Description:** Agent-first FSI credit risk monitoring platform
-**Last updated:** 2026-04-07
+**Last updated:** 2026-04-08
+
+## Product Narrative
+
+The product requirement and demo narrative live in `PRD.md`.
+
+This app is intentionally a demonstration of an **agent-first, Elemental-grounded financial intelligence workflow**. The product goal is to show that canonical entity resolution, shared graph context, visible multi-agent orchestration, and evidence-backed answers produce a more trustworthy experience than a raw model alone.
 
 ## Configuration
 
