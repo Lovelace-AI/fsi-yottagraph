@@ -109,6 +109,12 @@
             subtitle: 'Pipeline activity',
         },
         {
+            to: '/data-sources',
+            icon: 'mdi-database-search',
+            title: 'Data Sources',
+            subtitle: 'EDGAR, News, Stocks...',
+        },
+        {
             to: '/data-explorer',
             icon: 'mdi-table-search',
             title: 'Data Explorer',
