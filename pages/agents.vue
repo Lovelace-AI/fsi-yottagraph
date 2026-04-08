@@ -8,16 +8,6 @@
                 />
                 <v-spacer />
                 <v-btn
-                    v-if="activeProject"
-                    size="small"
-                    variant="outlined"
-                    prepend-icon="mdi-plus"
-                    class="mr-2"
-                    @click="showAddEntity = true"
-                >
-                    Add Entity
-                </v-btn>
-                <v-btn
                     v-if="activeProject && entities.length > 0"
                     size="small"
                     color="primary"
@@ -83,12 +73,48 @@
                                 page to see agent activity.
                             </div>
                         </div>
+                        <div v-else-if="entities.length === 0" class="text-center pa-12">
+                            <v-icon size="64" color="grey-darken-1" class="mb-4"
+                                >mdi-plus-circle-outline</v-icon
+                            >
+                            <div class="text-h6 text-grey mb-2">Add entities to monitor</div>
+                            <div
+                                class="text-body-2 text-grey-darken-1 mb-6"
+                                style="max-width: 400px; margin: 0 auto"
+                            >
+                                Search for companies, organizations, or people to add to your
+                                project. The agent pipeline will gather data and analyze risk.
+                            </div>
+                            <v-text-field
+                                v-model="entityName"
+                                placeholder="Search: e.g. Microsoft, JPMorgan Chase, Delta Air Lines"
+                                variant="outlined"
+                                density="comfortable"
+                                prepend-inner-icon="mdi-magnify"
+                                :append-inner-icon="entityName.trim() ? 'mdi-plus' : undefined"
+                                :loading="addingEntity"
+                                :error-messages="addError"
+                                style="max-width: 500px; margin: 0 auto"
+                                @keyup.enter="handleAddEntity"
+                                @click:append-inner="handleAddEntity"
+                            />
+                        </div>
                         <div v-else-if="events.length === 0" class="text-center pa-12">
                             <v-icon size="48" color="grey-darken-1">mdi-robot-off-outline</v-icon>
-                            <div class="text-body-1 text-grey mt-2">
-                                No agent activity yet. Add entities and click
-                                <strong>Scan All</strong> to start the pipeline.
+                            <div class="text-body-1 text-grey mt-2 mb-4">
+                                {{ entities.length }} entity{{
+                                    entities.length === 1 ? '' : 'ies'
+                                }}
+                                added. Click <strong>Scan All</strong> to start the agent pipeline.
                             </div>
+                            <v-btn
+                                color="primary"
+                                prepend-icon="mdi-radar"
+                                :loading="scanning"
+                                @click="handleScan"
+                            >
+                                Scan All
+                            </v-btn>
                         </div>
                         <div v-else class="activity-feed">
                             <div
@@ -320,18 +346,25 @@
 
                 <v-window-item value="entities">
                     <div class="pa-4">
-                        <div v-if="entities.length === 0" class="text-center pa-12">
+                        <v-text-field
+                            v-model="entityName"
+                            placeholder="Add entity: type a name and press Enter"
+                            variant="outlined"
+                            density="comfortable"
+                            prepend-inner-icon="mdi-magnify"
+                            :append-inner-icon="entityName.trim() ? 'mdi-plus-circle' : undefined"
+                            :loading="addingEntity"
+                            :error-messages="addError"
+                            class="mb-4"
+                            @keyup.enter="handleAddEntity"
+                            @click:append-inner="handleAddEntity"
+                        />
+                        <div v-if="entities.length === 0" class="text-center pa-8">
                             <v-icon size="48" color="grey-darken-1">mdi-domain</v-icon>
-                            <div class="text-body-1 text-grey mt-2 mb-4">
-                                No entities in this project yet.
+                            <div class="text-body-1 text-grey mt-2">
+                                No entities yet. Search above to add companies, people, or
+                                organizations.
                             </div>
-                            <v-btn
-                                color="primary"
-                                prepend-icon="mdi-plus"
-                                @click="showAddEntity = true"
-                            >
-                                Add Entity
-                            </v-btn>
                         </div>
                         <v-list v-else lines="two">
                             <v-list-item v-for="entity in entities" :key="entity.neid">
@@ -367,38 +400,6 @@
                 </v-window-item>
             </v-window>
         </div>
-
-        <v-dialog v-model="showAddEntity" max-width="500">
-            <v-card>
-                <v-card-title>Add Entity</v-card-title>
-                <v-card-text>
-                    <v-text-field
-                        v-model="entityName"
-                        label="Entity name"
-                        placeholder="e.g. Microsoft, JPMorgan Chase, Delta Air Lines"
-                        autofocus
-                        :error-messages="addError"
-                        @keyup.enter="handleAddEntity"
-                    />
-                    <div class="text-caption text-grey">
-                        The Dialogue Agent will resolve this name to an entity in the knowledge
-                        graph.
-                    </div>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer />
-                    <v-btn variant="text" @click="showAddEntity = false">Cancel</v-btn>
-                    <v-btn
-                        color="primary"
-                        :disabled="!entityName.trim()"
-                        :loading="addingEntity"
-                        @click="handleAddEntity"
-                    >
-                        Add
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
     </div>
 </template>
 
@@ -413,7 +414,6 @@
     } = useAgentChat();
 
     const tab = ref('activity');
-    const showAddEntity = ref(false);
     const entityName = ref('');
     const addingEntity = ref(false);
     const addError = ref('');
@@ -455,7 +455,6 @@
         addingEntity.value = false;
         if (result) {
             entityName.value = '';
-            showAddEntity.value = false;
         } else {
             addError.value = `Could not resolve "${entityName.value}" in the knowledge graph`;
         }

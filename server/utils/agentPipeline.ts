@@ -39,19 +39,22 @@ function getGatewayConfig() {
     };
 }
 
-async function elementalFetch(endpoint: string, options?: RequestInit): Promise<any> {
+async function elementalFetch(
+    endpoint: string,
+    options?: { method?: string; body?: any; headers?: Record<string, string> }
+): Promise<any> {
     const { gatewayUrl, orgId, apiKey } = getGatewayConfig();
     if (!gatewayUrl || !orgId) throw new Error('Gateway not configured');
     const url = `${gatewayUrl}/api/qs/${orgId}/${endpoint.replace(/^\//, '')}`;
     const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
         ...(apiKey && { 'X-Api-Key': apiKey }),
+        ...options?.headers,
     };
-    const res = await $fetch<any>(url, {
-        ...options,
-        headers: { ...headers, ...(options?.headers as Record<string, string>) },
-    } as any);
-    return res;
+    return await $fetch<any>(url, {
+        method: (options?.method as any) || 'GET',
+        body: options?.body,
+        headers,
+    });
 }
 
 function emit(
@@ -84,12 +87,12 @@ async function resolveEntityName(
     try {
         const res = await elementalFetch('entities/search', {
             method: 'POST',
-            body: JSON.stringify({
+            body: {
                 queries: [{ queryId: 1, query: name }],
                 maxResults: 3,
                 includeNames: true,
                 includeFlavors: true,
-            }),
+            },
         });
         const matches = res?.results?.[0]?.matches ?? [];
         if (matches.length === 0) {

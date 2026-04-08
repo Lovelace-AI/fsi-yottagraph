@@ -6,7 +6,7 @@
 
         <div class="flex-grow-1 overflow-y-auto pa-6 pt-2">
             <div class="d-flex align-center mb-4">
-                <v-btn color="primary" prepend-icon="mdi-plus" @click="showCreate = true">
+                <v-btn color="primary" prepend-icon="mdi-plus" @click="startCreate">
                     New Project
                 </v-btn>
                 <v-spacer />
@@ -29,7 +29,7 @@
                 <div class="text-body-2 text-grey-darken-1 mb-4">
                     Create a project to start monitoring entities for credit risk.
                 </div>
-                <v-btn color="primary" prepend-icon="mdi-plus" @click="showCreate = true">
+                <v-btn color="primary" prepend-icon="mdi-plus" @click="startCreate">
                     Create Your First Project
                 </v-btn>
             </div>
@@ -48,7 +48,7 @@
                         </v-card-subtitle>
                         <v-card-text>
                             <v-chip size="x-small" variant="tonal" class="mr-1">
-                                Created {{ formatDate(project.createdAt) }}
+                                {{ formatDate(project.createdAt) }}
                             </v-chip>
                         </v-card-text>
                         <v-card-actions>
@@ -74,23 +74,71 @@
             </v-row>
         </div>
 
-        <v-dialog v-model="showCreate" max-width="500">
-            <v-card>
+        <!-- Wizard-style Create Dialog -->
+        <v-dialog v-model="showCreate" max-width="700" persistent>
+            <!-- Step 1: Name + ingestion path -->
+            <v-card v-if="wizardStep === 1">
                 <v-card-title>New Project</v-card-title>
                 <v-card-text>
                     <v-text-field
                         v-model="newName"
                         label="Project name"
                         placeholder="e.g. Q2 Credit Review"
-                        autofocus
-                        @keyup.enter="handleCreate"
+                        variant="outlined"
+                        density="comfortable"
+                        class="mb-2"
                     />
                     <v-textarea
                         v-model="newDescription"
                         label="Description (optional)"
                         rows="2"
                         placeholder="Brief description of this monitoring project"
+                        variant="outlined"
+                        density="comfortable"
+                        class="mb-4"
                     />
+
+                    <div class="text-subtitle-2 mb-3">How would you like to add entities?</div>
+                    <v-row>
+                        <v-col cols="12" sm="4">
+                            <v-card
+                                :variant="ingestionPath === 'empty' ? 'flat' : 'outlined'"
+                                :color="ingestionPath === 'empty' ? 'surface-variant' : undefined"
+                                class="cursor-pointer text-center pa-4"
+                                @click="ingestionPath = 'empty'"
+                            >
+                                <v-icon size="32" class="mb-2">mdi-text-box-outline</v-icon>
+                                <div class="text-body-2 font-weight-medium">Empty List</div>
+                                <div class="text-caption text-grey">Add entities later</div>
+                            </v-card>
+                        </v-col>
+                        <v-col cols="12" sm="4">
+                            <v-card
+                                :variant="ingestionPath === 'csv' ? 'flat' : 'outlined'"
+                                :color="ingestionPath === 'csv' ? 'surface-variant' : undefined"
+                                class="cursor-pointer text-center pa-4"
+                                @click="ingestionPath = 'csv'"
+                            >
+                                <v-icon size="32" class="mb-2">mdi-file-upload-outline</v-icon>
+                                <div class="text-body-2 font-weight-medium">Upload CSV</div>
+                                <div class="text-caption text-grey">Bulk import entities</div>
+                            </v-card>
+                        </v-col>
+                        <v-col cols="12" sm="4">
+                            <v-card
+                                :variant="ingestionPath === 'research' ? 'flat' : 'outlined'"
+                                :color="
+                                    ingestionPath === 'research' ? 'surface-variant' : undefined
+                                "
+                                class="cursor-pointer text-center pa-4"
+                                @click="ingestionPath = 'research'"
+                            >
+                                <v-icon size="32" color="primary" class="mb-2">mdi-creation</v-icon>
+                                <div class="text-body-2 font-weight-medium">Gemini Research</div>
+                                <div class="text-caption text-grey">AI-powered discovery</div>
+                            </v-card>
+                        </v-col>
+                    </v-row>
                 </v-card-text>
                 <v-card-actions>
                     <v-spacer />
@@ -101,10 +149,26 @@
                         :loading="creating"
                         @click="handleCreate"
                     >
-                        Create
+                        {{ ingestionPath === 'empty' ? 'Create' : 'Next' }}
                     </v-btn>
                 </v-card-actions>
             </v-card>
+
+            <!-- Step 2: CSV Upload -->
+            <CsvUploadDialog
+                v-if="wizardStep === 2 && ingestionPath === 'csv' && createdProject"
+                :project-id="createdProject.id"
+                @cancel="finishWizard"
+                @imported="handleImported"
+            />
+
+            <!-- Step 2: Gemini Research -->
+            <GeminiResearchPanel
+                v-if="wizardStep === 2 && ingestionPath === 'research' && createdProject"
+                :project-id="createdProject.id"
+                @cancel="finishWizard"
+                @imported="handleImported"
+            />
         </v-dialog>
     </div>
 </template>
@@ -115,26 +179,58 @@
     const router = useRouter();
 
     const showCreate = ref(false);
+    const wizardStep = ref(1);
+    const ingestionPath = ref<'empty' | 'csv' | 'research'>('empty');
     const newName = ref('');
     const newDescription = ref('');
     const creating = ref(false);
+    const createdProject = ref<any>(null);
 
     onMounted(() => {
         fetchProjects();
     });
+
+    function startCreate() {
+        wizardStep.value = 1;
+        ingestionPath.value = 'empty';
+        newName.value = '';
+        newDescription.value = '';
+        createdProject.value = null;
+        showCreate.value = true;
+    }
 
     async function handleCreate() {
         if (!newName.value.trim()) return;
         creating.value = true;
         const project = await createProject(newName.value.trim(), newDescription.value.trim());
         creating.value = false;
-        if (project) {
-            showCreate.value = false;
-            newName.value = '';
-            newDescription.value = '';
+
+        if (!project) return;
+        createdProject.value = project;
+
+        if (ingestionPath.value === 'empty') {
             await selectProject(project);
+            showCreate.value = false;
             router.push('/agents');
+        } else {
+            wizardStep.value = 2;
         }
+    }
+
+    async function handleImported(count: number) {
+        if (createdProject.value) {
+            await selectProject(createdProject.value);
+        }
+        showCreate.value = false;
+        router.push('/agents');
+    }
+
+    function finishWizard() {
+        if (createdProject.value) {
+            selectProject(createdProject.value);
+        }
+        showCreate.value = false;
+        router.push('/agents');
     }
 
     async function handleSelect(project: any) {
@@ -154,3 +250,9 @@
         });
     }
 </script>
+
+<style scoped>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>

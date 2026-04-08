@@ -20,8 +20,83 @@ export interface ProjectEntity {
     neid: string;
     name: string;
     entityType: string;
+    cik?: string;
+    ticker?: string;
+    lei?: string;
+    figi?: string;
+    cusip?: string;
+    isin?: string;
+    ein?: string;
+    matchMethod:
+        | 'name'
+        | 'ticker'
+        | 'cik'
+        | 'neid'
+        | 'gemini_research'
+        | 'csv'
+        | 'manual'
+        | 'unresolved';
+    confidence: number;
+    resolutionStrength: number;
+    sourceType: 'manual' | 'csv' | 'gemini_research' | 'seed';
+    resolved: boolean;
+    resolvedAt?: string;
+    rationale?: string;
     addedAt: string;
     addedBy: string;
+}
+
+export interface ResearchPlan {
+    id: string;
+    projectId: string;
+    topic: string;
+    context?: string;
+    geography?: string;
+    timeHorizon?: string;
+    template?: string;
+    topicSummary: string;
+    subthemes: string[];
+    adjacentDomains: string[];
+    keywords: string[];
+    signalHypotheses: string[];
+    targetEntities: ResearchEntity[];
+    searchQueries: string[];
+    coverageNotes?: string;
+    createdAt: string;
+}
+
+export interface ResearchEntity {
+    name: string;
+    ticker?: string;
+    rationale: string;
+    selected?: boolean;
+}
+
+export interface ResolutionResult {
+    name: string;
+    matched: boolean;
+    neid?: string;
+    entityType?: string;
+    confidence: number;
+    matchMethod: ProjectEntity['matchMethod'];
+    resolutionStrength: number;
+    identifiers: {
+        cik?: string;
+        ticker?: string;
+        lei?: string;
+        neid?: string;
+        figi?: string;
+        cusip?: string;
+    };
+}
+
+export interface ResolutionStats {
+    total: number;
+    resolved: number;
+    unresolved: number;
+    avgConfidence: number;
+    avgResolutionStrength: number;
+    identifierCoverage: Record<string, number>;
 }
 
 export interface EntityScore {
@@ -140,6 +215,20 @@ export async function deleteProject(id: string): Promise<boolean> {
     return true;
 }
 
+export async function updateProject(
+    id: string,
+    updates: Partial<Pick<Project, 'name' | 'description'>>
+): Promise<Project | null> {
+    const projects = await listProjects();
+    const idx = projects.findIndex((p) => p.id === id);
+    if (idx === -1) return null;
+    if (updates.name) projects[idx].name = updates.name;
+    if (updates.description !== undefined) projects[idx].description = updates.description;
+    projects[idx].updatedAt = new Date().toISOString();
+    await kvSet(`${PREFIX}:projects`, projects);
+    return projects[idx];
+}
+
 // --- Entities ---
 
 export async function listEntities(projectId: string): Promise<ProjectEntity[]> {
@@ -157,6 +246,37 @@ export async function addEntity(
     entities.push(entity);
     await kvSet(`${PREFIX}:project:${projectId}:entities`, entities);
     return entities;
+}
+
+export async function addEntitiesBatch(
+    projectId: string,
+    newEntities: ProjectEntity[]
+): Promise<ProjectEntity[]> {
+    const entities = await listEntities(projectId);
+    for (const ne of newEntities) {
+        if (!entities.some((e) => e.neid === ne.neid && ne.neid)) {
+            entities.push(ne);
+        }
+    }
+    await kvSet(`${PREFIX}:project:${projectId}:entities`, entities);
+    return entities;
+}
+
+export async function updateEntity(
+    projectId: string,
+    neid: string,
+    updates: Partial<ProjectEntity>
+): Promise<ProjectEntity | null> {
+    const entities = await listEntities(projectId);
+    const idx = entities.findIndex((e) => e.neid === neid);
+    if (idx === -1) return null;
+    Object.assign(entities[idx], updates);
+    await kvSet(`${PREFIX}:project:${projectId}:entities`, entities);
+    return entities[idx];
+}
+
+export async function replaceEntities(projectId: string, entities: ProjectEntity[]): Promise<void> {
+    await kvSet(`${PREFIX}:project:${projectId}:entities`, entities);
 }
 
 export async function removeEntity(projectId: string, neid: string): Promise<ProjectEntity[]> {
@@ -255,4 +375,49 @@ export async function getNarrative(
     projectId: string
 ): Promise<{ text: string; generatedAt: string; sessionId: string } | null> {
     return kvGet(`${PREFIX}:project:${projectId}:narrative`);
+}
+
+// --- Research Plans ---
+
+export async function saveResearchPlan(projectId: string, plan: ResearchPlan): Promise<void> {
+    const plans = await listResearchPlans(projectId);
+    plans.push(plan);
+    if (plans.length > 50) plans.splice(0, plans.length - 50);
+    await kvSet(`${PREFIX}:project:${projectId}:research_plans`, plans);
+}
+
+export async function listResearchPlans(projectId: string): Promise<ResearchPlan[]> {
+    return (await kvGet<ResearchPlan[]>(`${PREFIX}:project:${projectId}:research_plans`)) ?? [];
+}
+
+// --- Resolution Stats ---
+
+export async function getResolutionStats(projectId: string): Promise<ResolutionStats> {
+    const entities = await listEntities(projectId);
+    const total = entities.length;
+    const resolved = entities.filter((e) => e.resolved).length;
+    const idFields = ['cik', 'ticker', 'lei', 'neid', 'figi', 'cusip'] as const;
+
+    const identifierCoverage: Record<string, number> = {};
+    for (const field of idFields) {
+        const count = entities.filter((e) => {
+            if (field === 'neid') return Boolean(e.neid);
+            return Boolean(e[field]);
+        }).length;
+        identifierCoverage[field] = total > 0 ? Math.round((count / total) * 100) : 0;
+    }
+
+    const avgConfidence =
+        total > 0 ? entities.reduce((sum, e) => sum + (e.confidence ?? 0), 0) / total : 0;
+    const avgResolutionStrength =
+        total > 0 ? entities.reduce((sum, e) => sum + (e.resolutionStrength ?? 0), 0) / total : 0;
+
+    return {
+        total,
+        resolved,
+        unresolved: total - resolved,
+        avgConfidence: Math.round(avgConfidence * 100) / 100,
+        avgResolutionStrength: Math.round(avgResolutionStrength * 10) / 10,
+        identifierCoverage,
+    };
 }

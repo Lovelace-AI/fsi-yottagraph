@@ -11,6 +11,23 @@
 
                 <v-divider class="mb-2" />
 
+                <!-- Project Selector -->
+                <div class="px-3 mb-2">
+                    <v-select
+                        :model-value="activeProject?.id || null"
+                        :items="projectSelectItems"
+                        item-title="name"
+                        item-value="id"
+                        label="Project"
+                        variant="outlined"
+                        density="compact"
+                        hide-details
+                        prepend-inner-icon="mdi-folder-outline"
+                        placeholder="Select project..."
+                        @update:model-value="handleProjectSwitch"
+                    />
+                </div>
+
                 <v-list nav density="compact" class="px-2">
                     <v-list-item
                         v-for="item in navItems"
@@ -61,8 +78,22 @@
 
     const route = useRoute();
     const { userName } = useUserState();
+    const { projects, activeProject, fetchProjects, selectProject } = useProject();
 
     const noFrameworkRoutes = ['/login', '/a0callback', '/logout', '/pending'];
+
+    const projectSelectItems = computed(() =>
+        projects.value.map((p: any) => ({ id: p.id, name: p.name }))
+    );
+
+    async function handleProjectSwitch(projectId: string) {
+        const project = projects.value.find((p: any) => p.id === projectId);
+        if (project) await selectProject(project);
+    }
+
+    onMounted(() => {
+        fetchProjects();
+    });
 
     const navItems = [
         {
