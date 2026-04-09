@@ -58,6 +58,30 @@
             </v-navigation-drawer>
 
             <v-main class="fill-height">
+                <div v-if="route.path !== '/'" class="pa-4 pb-0">
+                    <v-alert
+                        :type="activeProject ? 'info' : 'warning'"
+                        variant="tonal"
+                        density="compact"
+                    >
+                        <div class="d-flex align-center flex-wrap ga-2">
+                            <strong>Active project:</strong>
+                            <v-chip
+                                v-if="activeProject"
+                                color="primary"
+                                size="small"
+                                variant="tonal"
+                            >
+                                {{ activeProject.name }}
+                            </v-chip>
+                            <span v-else>No project selected</span>
+                            <v-spacer />
+                            <span class="text-caption">
+                                Agents, Data Explorer, and Dashboard all use this active project.
+                            </span>
+                        </div>
+                    </v-alert>
+                </div>
                 <NuxtPage />
             </v-main>
 

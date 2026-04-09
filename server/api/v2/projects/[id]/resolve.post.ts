@@ -1,5 +1,6 @@
 import { listEntities, replaceEntities, type ProjectEntity } from '~/server/utils/projectStore';
-import { resolveEntity, resolutionResultToEntity } from '~/server/utils/resolutionPipeline';
+import { resolutionResultToEntity } from '~/server/utils/resolutionPipeline';
+import { resolveEntityAgentFirst } from '~/server/utils/agentResolution';
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id');
@@ -15,9 +16,14 @@ export default defineEventHandler(async (event) => {
             updated.push(entity);
             continue;
         }
-        const result = await resolveEntity(entity.name, {
+        const result = await resolveEntityAgentFirst(entity.name, {
             ticker: entity.ticker,
             cik: entity.cik,
+            lei: entity.lei,
+            ein: entity.ein,
+            cusip: entity.cusip,
+            figi: entity.figi,
+            isin: entity.isin,
         });
         const resolved = resolutionResultToEntity(result, entity.sourceType, entity.rationale);
         resolved.addedAt = entity.addedAt;

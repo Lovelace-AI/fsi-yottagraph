@@ -1,9 +1,6 @@
 import { addEntity, addEntitiesBatch, type ProjectEntity } from '~/server/utils/projectStore';
-import {
-    resolveEntity,
-    resolveBatch,
-    resolutionResultToEntity,
-} from '~/server/utils/resolutionPipeline';
+import { resolutionResultToEntity } from '~/server/utils/resolutionPipeline';
+import { resolveEntityAgentFirst, resolveBatchAgentFirst } from '~/server/utils/agentResolution';
 
 export default defineEventHandler(async (event) => {
     const id = getRouterParam(event, 'id');
@@ -11,14 +8,24 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody<{
         name?: string;
-        batch?: { name: string; ticker?: string; cik?: string; rationale?: string }[];
+        batch?: {
+            name: string;
+            ticker?: string;
+            cik?: string;
+            lei?: string;
+            ein?: string;
+            cusip?: string;
+            figi?: string;
+            isin?: string;
+            rationale?: string;
+        }[];
         sourceType?: ProjectEntity['sourceType'];
     }>(event);
 
     // Batch import (from CSV or Gemini research)
     if (body?.batch && body.batch.length > 0) {
         const sourceType = body.sourceType || 'manual';
-        const results = await resolveBatch(body.batch);
+        const results = await resolveBatchAgentFirst(body.batch);
         const entities: ProjectEntity[] = results.map((r, i) =>
             resolutionResultToEntity(r, sourceType, body.batch![i].rationale)
         );
@@ -35,7 +42,7 @@ export default defineEventHandler(async (event) => {
         throw createError({ statusCode: 400, statusMessage: 'Entity name is required' });
     }
 
-    const result = await resolveEntity(body.name.trim());
+    const result = await resolveEntityAgentFirst(body.name.trim());
     if (!result.matched) {
         throw createError({
             statusCode: 404,

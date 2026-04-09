@@ -7,13 +7,19 @@ An **agent-first credit risk monitoring platform** where a 4-agent pipeline (Dia
 **Created:** 2026-04-07
 **App ID:** fsi
 **Description:** Agent-first FSI credit risk monitoring platform
-**Last updated:** 2026-04-08
+**Last updated:** 2026-04-09
 
 ## Product Narrative
 
 The product requirement and demo narrative live in `PRD.md`.
 
 This app is intentionally a demonstration of an **agent-first, Elemental-grounded financial intelligence workflow**. The product goal is to show that canonical entity resolution, shared graph context, visible multi-agent orchestration, and evidence-backed answers produce a more trustworthy experience than a raw model alone.
+
+The intended runtime boundary is:
+
+`UI -> deployed agents -> Elemental MCP/tooling`
+
+Application APIs remain for product plumbing (project CRUD, persistence, transport). Any direct app-side Elemental REST calls are transitional scaffolding and should be migrated behind deployed agent execution paths.
 
 ## Configuration
 
@@ -41,9 +47,10 @@ User Request → Dialogue Agent (entity resolution, intent classification)
 
 ### Data Flow
 
-- **Data Source**: Elemental API via Portal Gateway proxy (sole external data source)
-- **Agent Runtime (Python)**: ADK agent package `agents/credit_monitor/` with root orchestrator + 4 sub-agents
-- **Agent Runtime (TypeScript)**: Nitro server routes calling Gemini + Elemental for background scanning
+- **Data Source**: Elemental via MCP/tooling through deployed agents
+- **Primary Agent Runtime**: ADK agent package `agents/credit_monitor/` (deployed) with root orchestrator + 4 sub-agents
+- **Application Runtime**: Nitro server routes for workflow state, persistence, proxying, and UI transport
+- **Transitional Paths**: Some Nitro routes still call gateway REST directly and are being migrated behind deployed agents
 - **Storage**: KV (Upstash Redis) for projects, entities, scores, sessions, cache
 - **Real-time**: SSE activity stream for live agent step visualization
 
@@ -80,6 +87,13 @@ Description: Elemental API connection status, Gemini AI status, scoring weight c
 Implementation status: Complete
 
 ## Cross-Cutting Concepts
+
+### Active Project Context
+
+- `useProject()` is the shared project context across modules.
+- The selected project in the global sidebar selector sets `activeProject` and loads its entities.
+- Agents, Data Explorer, and Dashboard read from the same `activeProject` + `entities` state, so switching projects updates all downstream module views.
+- The active project is persisted in localStorage and restored on reload when possible.
 
 ### Scoring Model
 

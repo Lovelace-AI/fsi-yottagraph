@@ -225,12 +225,14 @@ export function useProject() {
         }
     }
 
+    const currentProjectId = computed(() => activeProject.value?.id || null);
     const entityCount = computed(() => entities.value.length);
     const resolvedCount = computed(() => entities.value.filter((e) => e.resolved).length);
 
     return {
         projects: readonly(projects),
         activeProject: readonly(activeProject),
+        currentProjectId,
         entities: readonly(entities),
         loading: readonly(loading),
         error: readonly(error),

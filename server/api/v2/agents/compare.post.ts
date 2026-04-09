@@ -2,14 +2,14 @@
  * Side-by-side comparison endpoint.
  *
  * Runs the same question through two paths:
- * 1. Raw Gemini (no Elemental context, no tools — just the LLM)
- * 2. Contextual pipeline (Elemental data retrieval + Gemini reasoning)
- *
- * Returns both responses for side-by-side display in the UI.
+ * 1. Raw Gemini (no Elemental context)
+ * 2. Deployed-agent contextual response (agent-first runtime path)
  */
 
 import { generateContent, isGeminiConfigured } from '~/server/utils/gemini';
 import { emitActivity, createActivityId } from '~/server/utils/activityBus';
+import { queryDeployedAgentJson } from '~/server/utils/agentRuntime';
+import type { AgentComparisonContract, AgentEvidenceItem } from '~/server/utils/agentContract';
 
 export default defineEventHandler(async (event) => {
     const body = await readBody<{ question: string; entityContext?: string }>(event);
@@ -36,7 +36,6 @@ export default defineEventHandler(async (event) => {
         detail: question,
     });
 
-    // Path 1: Raw Gemini — no Elemental context, no tools
     const rawStart = Date.now();
     let rawResponse: string;
     try {
@@ -61,78 +60,55 @@ export default defineEventHandler(async (event) => {
         durationMs: rawDuration,
     });
 
-    // Path 2: Contextual — with Elemental data
     const contextStart = Date.now();
     let contextualResponse: string;
+    let contextualEvidence: AgentEvidenceItem[] = [];
+
     try {
-        // Fetch entity context from Elemental if we have entity info
-        let elementalContext = body.entityContext || '';
-        if (!elementalContext) {
-            // Try to extract entity names from the question and look them up
-            const { public: config } = useRuntimeConfig();
-            const gw = (config as Record<string, string>).gatewayUrl;
-            const org = (config as Record<string, string>).tenantOrgId;
-            const apiKey = (config as Record<string, string>).qsApiKey;
+        const prompt = `Run an agent-first contextual analysis for this question:
+${question}
 
-            if (gw && org) {
-                try {
-                    const searchRes = await $fetch<any>(`${gw}/api/qs/${org}/entities/search`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...(apiKey && { 'X-Api-Key': apiKey }),
-                        },
-                        body: {
-                            queries: [{ queryId: 1, query: question }],
-                            maxResults: 3,
-                            includeNames: true,
-                        },
-                    });
-                    const matches = searchRes?.results?.[0]?.matches ?? [];
-                    if (matches.length > 0) {
-                        const neid = matches[0].neid;
-                        const propRes = await $fetch<any>(
-                            `${gw}/api/qs/${org}/elemental/entities/properties`,
-                            {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/x-www-form-urlencoded',
-                                    ...(apiKey && { 'X-Api-Key': apiKey }),
-                                },
-                                body: new URLSearchParams({
-                                    eids: JSON.stringify([neid]),
-                                    include_attributes: 'true',
-                                }).toString(),
-                            }
-                        );
-                        elementalContext = JSON.stringify({
-                            entity: matches[0].name,
-                            neid,
-                            properties: (propRes?.values ?? []).slice(0, 30),
-                        });
-                    }
-                } catch {
-                    // Elemental lookup failed — proceed without context
-                }
-            }
+${body.entityContext ? `Optional caller context packet:\n${body.entityContext}\n` : ''}
+
+Return ONLY valid JSON:
+{
+  "answer": "Contextual answer grounded in retrieved evidence",
+  "evidence": [
+    {"id": "E1", "source": "what source/tool produced this", "detail": "brief evidence detail"}
+  ]
+}
+
+Rules:
+- Use your retrieval tools and agent context path.
+- Keep evidence list concise (max 8 items).
+- Do not include markdown fences.`;
+
+        const { result, json } = await queryDeployedAgentJson<AgentComparisonContract>(
+            ['credit_monitor', 'query_agent'],
+            prompt
+        );
+
+        if (json?.answer) {
+            contextualResponse = json.answer;
+            contextualEvidence = Array.isArray(json.evidence)
+                ? json.evidence
+                      .map((e, idx) => ({
+                          id: e.id || `E${idx + 1}`,
+                          source: String(e.source || 'agent'),
+                          detail: String(e.detail || ''),
+                      }))
+                      .slice(0, 8)
+                : [];
+        } else if (result.text) {
+            contextualResponse = result.text;
+            contextualEvidence = [];
+        } else {
+            throw new Error(result.error || 'Agent returned no contextual response');
         }
-
-        const contextPrompt = elementalContext
-            ? `${question}\n\n--- Elemental Knowledge Graph Context ---\n${elementalContext}`
-            : question;
-
-        contextualResponse = await generateContent(contextPrompt, {
-            systemInstruction:
-                'You are a financial analyst with access to the Elemental Knowledge Graph — a proprietary ' +
-                'data source containing entity data, relationships, financial properties, events, and news. ' +
-                'The context below contains real data from this knowledge graph. ' +
-                'Use this data to provide an evidence-backed, precise answer. ' +
-                'Cite specific data points from the context. ' +
-                'Clearly distinguish between facts from the knowledge graph and your own reasoning.',
-        });
     } catch (e: any) {
         contextualResponse = `Error: ${e.message}`;
     }
+
     const contextDuration = Date.now() - contextStart;
 
     emitActivity({
@@ -141,7 +117,7 @@ export default defineEventHandler(async (event) => {
         sessionId,
         agentType: 'query',
         action: 'Contextual response complete',
-        detail: `${contextualResponse.length} chars, with Elemental context`,
+        detail: `${contextualResponse.length} chars, with Elemental evidence`,
         durationMs: contextDuration,
     });
 
@@ -156,6 +132,7 @@ export default defineEventHandler(async (event) => {
             response: contextualResponse,
             durationMs: contextDuration,
             label: 'With Elemental Context',
+            evidence: contextualEvidence,
         },
     };
 });

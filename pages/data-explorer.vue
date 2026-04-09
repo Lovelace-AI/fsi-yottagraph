@@ -37,7 +37,7 @@
                                 >mdi-folder-alert-outline</v-icon
                             >
                             <div class="text-body-1 text-grey mt-2">
-                                Select a project from the
+                                Select a project from the sidebar Project selector or the
                                 <router-link to="/" class="text-primary">Projects</router-link>
                                 page first.
                             </div>

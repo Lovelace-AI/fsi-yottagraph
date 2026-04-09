@@ -68,7 +68,7 @@
                                 >mdi-folder-alert-outline</v-icon
                             >
                             <div class="text-body-1 text-grey mt-2">
-                                Select a project from the
+                                Select a project from the sidebar Project selector or the
                                 <router-link to="/" class="text-primary">Projects</router-link>
                                 page to see agent activity.
                             </div>
@@ -167,6 +167,49 @@
 
                 <v-window-item value="dialogue">
                     <div class="d-flex flex-column" style="height: calc(100vh - 200px)">
+                        <div class="pa-4 pb-2">
+                            <div class="d-flex align-center ga-3">
+                                <v-select
+                                    v-model="selectedChatAgentId"
+                                    :items="availableChatAgents"
+                                    item-title="display_name"
+                                    item-value="engine_id"
+                                    label="Deployed Agent"
+                                    variant="outlined"
+                                    density="compact"
+                                    hide-details
+                                    :loading="tenantConfigLoading"
+                                    style="max-width: 360px"
+                                    @update:model-value="handleChatAgentChange"
+                                />
+                                <v-chip
+                                    v-if="selectedChatAgentLabel"
+                                    size="small"
+                                    color="primary"
+                                    variant="tonal"
+                                >
+                                    {{ selectedChatAgentLabel }}
+                                </v-chip>
+                            </div>
+                            <v-alert
+                                v-if="tenantConfigError"
+                                type="warning"
+                                variant="tonal"
+                                density="compact"
+                                class="mt-3"
+                            >
+                                Could not load tenant agent config: {{ tenantConfigError }}
+                            </v-alert>
+                            <v-alert
+                                v-else-if="availableChatAgents.length === 0"
+                                type="warning"
+                                variant="tonal"
+                                density="compact"
+                                class="mt-3"
+                            >
+                                No deployed agents discovered in tenant config.
+                            </v-alert>
+                        </div>
                         <div class="flex-grow-1 overflow-y-auto pa-4">
                             <div v-if="chatMessages.length === 0" class="text-center pa-12">
                                 <v-icon size="48" color="grey-darken-1">mdi-chat-outline</v-icon>
@@ -253,7 +296,9 @@
                         <v-row v-if="comparisonResult">
                             <v-col cols="12" md="6">
                                 <v-card color="surface-variant">
-                                    <v-card-title class="text-subtitle-2 d-flex align-center">
+                                    <v-card-title
+                                        class="text-subtitle-2 d-flex align-center text-on-surface"
+                                    >
                                         <v-icon size="16" class="mr-1" color="grey"
                                             >mdi-robot-off-outline</v-icon
                                         >
@@ -263,7 +308,7 @@
                                             {{ comparisonResult.raw.durationMs }}ms
                                         </v-chip>
                                     </v-card-title>
-                                    <v-card-text>
+                                    <v-card-text class="text-on-surface">
                                         <div
                                             class="text-body-2"
                                             style="
@@ -279,7 +324,9 @@
                             </v-col>
                             <v-col cols="12" md="6">
                                 <v-card>
-                                    <v-card-title class="text-subtitle-2 d-flex align-center">
+                                    <v-card-title
+                                        class="text-subtitle-2 d-flex align-center text-on-surface"
+                                    >
                                         <v-icon size="16" class="mr-1" color="primary"
                                             >mdi-database-check</v-icon
                                         >
@@ -289,7 +336,7 @@
                                             {{ comparisonResult.contextual.durationMs }}ms
                                         </v-chip>
                                     </v-card-title>
-                                    <v-card-text>
+                                    <v-card-text class="text-on-surface">
                                         <div
                                             class="text-body-2"
                                             style="
@@ -346,6 +393,7 @@
 
                 <v-window-item value="entities">
                     <div class="pa-4">
+                        <!-- Search + Bulk Actions -->
                         <v-text-field
                             v-model="entityName"
                             placeholder="Add entity: type a name and press Enter"
@@ -355,15 +403,44 @@
                             :append-inner-icon="entityName.trim() ? 'mdi-plus-circle' : undefined"
                             :loading="addingEntity"
                             :error-messages="addError"
-                            class="mb-4"
+                            class="mb-2"
                             @keyup.enter="handleAddEntity"
                             @click:append-inner="handleAddEntity"
                         />
+                        <div class="d-flex align-center ga-2 mb-4">
+                            <v-btn
+                                size="small"
+                                variant="outlined"
+                                prepend-icon="mdi-file-upload-outline"
+                                @click="showCsvImport = true"
+                            >
+                                CSV Import
+                            </v-btn>
+                            <v-btn
+                                size="small"
+                                variant="outlined"
+                                prepend-icon="mdi-creation"
+                                @click="showGeminiResearch = true"
+                            >
+                                Gemini Research
+                            </v-btn>
+                            <v-spacer />
+                            <v-chip v-if="entities.length" variant="tonal" size="small">
+                                {{ entities.length }} entity{{ entities.length === 1 ? '' : 'ies' }}
+                            </v-chip>
+                        </div>
+
+                        <!-- Resolution Status (collapsed by default) -->
+                        <ProjectsResolutionStatus
+                            v-if="activeProject && entities.length > 0"
+                            :project-id="activeProject.id"
+                            class="mb-4"
+                        />
+
                         <div v-if="entities.length === 0" class="text-center pa-8">
                             <v-icon size="48" color="grey-darken-1">mdi-domain</v-icon>
                             <div class="text-body-1 text-grey mt-2">
-                                No entities yet. Search above to add companies, people, or
-                                organizations.
+                                No entities yet. Search above, upload a CSV, or use Gemini Research.
                             </div>
                         </div>
                         <v-list v-else lines="two">
@@ -373,9 +450,25 @@
                                         <v-icon size="20">mdi-domain</v-icon>
                                     </v-avatar>
                                 </template>
-                                <v-list-item-title>{{ entity.name }}</v-list-item-title>
+                                <v-list-item-title>
+                                    {{ entity.name }}
+                                    <v-chip
+                                        v-if="entity.ticker"
+                                        size="x-small"
+                                        variant="tonal"
+                                        class="ml-1"
+                                    >
+                                        {{ entity.ticker }}
+                                    </v-chip>
+                                </v-list-item-title>
                                 <v-list-item-subtitle>
-                                    {{ entity.entityType }} · {{ entity.neid }}
+                                    {{ entity.entityType }}
+                                    <span v-if="entity.matchMethod">
+                                        · {{ entity.matchMethod }}</span
+                                    >
+                                    <span v-if="entity.confidence">
+                                        · {{ (entity.confidence * 100).toFixed(0) }}%</span
+                                    >
                                 </v-list-item-subtitle>
                                 <template #append>
                                     <v-chip
@@ -400,11 +493,38 @@
                 </v-window-item>
             </v-window>
         </div>
+
+        <!-- CSV Import Dialog -->
+        <v-dialog v-model="showCsvImport" max-width="700">
+            <ProjectsCsvUploadDialog
+                v-if="activeProject"
+                :project-id="activeProject.id"
+                @cancel="showCsvImport = false"
+                @imported="handleBulkImported"
+            />
+        </v-dialog>
+
+        <!-- Gemini Research Dialog -->
+        <v-dialog v-model="showGeminiResearch" max-width="700">
+            <ProjectsGeminiResearchPanel
+                v-if="activeProject"
+                :project-id="activeProject.id"
+                @cancel="showGeminiResearch = false"
+                @imported="handleBulkImported"
+            />
+        </v-dialog>
     </div>
 </template>
 
 <script setup lang="ts">
-    const { activeProject, entities, addEntity, removeEntity, triggerScan } = useProject();
+    const { activeProject, entities, addEntity, removeEntity, triggerScan, refreshEntities } =
+        useProject();
+    const {
+        config: tenantConfig,
+        loading: tenantConfigLoading,
+        error: tenantConfigError,
+        fetchConfig: fetchTenantConfig,
+    } = useTenantConfig();
     const { events } = useActivityStream();
     const {
         messages: chatMessages,
@@ -415,6 +535,8 @@
 
     const tab = ref('activity');
     const entityName = ref('');
+    const showCsvImport = ref(false);
+    const showGeminiResearch = ref(false);
     const addingEntity = ref(false);
     const addError = ref('');
     const scanning = ref(false);
@@ -424,6 +546,8 @@
     const compareQuestion = ref('');
     const comparing = ref(false);
     const comparisonResult = ref<any>(null);
+    const selectedChatAgentId = ref('');
+    const selectedChatAgentLabel = ref('');
 
     const suggestions = [
         'What is the risk profile for Microsoft?',
@@ -439,13 +563,38 @@
         { title: 'Started', key: 'startedAt' },
     ];
 
+    const availableChatAgents = computed(() => tenantConfig.value?.agents || []);
     const reversedEvents = computed(() => [...events.value].reverse());
 
     onMounted(async () => {
         if (activeProject.value) {
             await loadSessions();
         }
+        await initChatAgentBinding();
     });
+
+    async function initChatAgentBinding() {
+        const cfg = await fetchTenantConfig();
+        const agents = cfg?.agents || [];
+        if (agents.length === 0) return;
+
+        const preferred =
+            agents.find((a) => a.name === 'dialogue_agent') ||
+            agents.find((a) => a.name === 'credit_monitor') ||
+            agents[0];
+        if (!preferred?.engine_id) return;
+
+        selectedChatAgentId.value = preferred.engine_id;
+        selectedChatAgentLabel.value = preferred.display_name || preferred.name;
+        selectAgent(preferred.engine_id);
+    }
+
+    function handleChatAgentChange(engineId: string) {
+        const picked = availableChatAgents.value.find((a) => a.engine_id === engineId);
+        if (!picked?.engine_id) return;
+        selectedChatAgentLabel.value = picked.display_name || picked.name;
+        selectAgent(picked.engine_id);
+    }
 
     async function handleAddEntity() {
         if (!entityName.value.trim()) return;
@@ -458,6 +607,12 @@
         } else {
             addError.value = `Could not resolve "${entityName.value}" in the knowledge graph`;
         }
+    }
+
+    async function handleBulkImported() {
+        showCsvImport.value = false;
+        showGeminiResearch.value = false;
+        await refreshEntities();
     }
 
     async function handleScan() {

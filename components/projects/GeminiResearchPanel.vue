@@ -186,6 +186,16 @@
             >
                 Run Research
             </v-btn>
+            <div v-if="adding" class="d-flex align-center mr-4">
+                <v-progress-circular
+                    size="16"
+                    width="2"
+                    indeterminate
+                    color="primary"
+                    class="mr-2"
+                />
+                <span class="text-caption text-grey">Resolving entities against Elemental...</span>
+            </div>
             <v-btn
                 v-else
                 color="primary"
@@ -271,6 +281,7 @@
     async function addSelectedEntities() {
         if (!plan.value?.targetEntities) return;
         adding.value = true;
+        error.value = '';
         try {
             const selected = plan.value.targetEntities.filter((e: any) => e.selected);
             const batch = selected.map((e: any) => ({
@@ -278,13 +289,14 @@
                 ticker: e.ticker,
                 rationale: e.rationale,
             }));
-            await $fetch(`/api/v2/projects/${props.projectId}/entities`, {
+            const res = await $fetch<any>(`/api/v2/projects/${props.projectId}/entities`, {
                 method: 'POST',
                 body: { batch, sourceType: 'gemini_research' },
+                timeout: 120000,
             });
-            emit('imported', batch.length);
+            emit('imported', res?.added || batch.length);
         } catch (e: any) {
-            error.value = e.data?.statusMessage || 'Failed to add entities';
+            error.value = e.data?.statusMessage || e.message || 'Failed to add entities';
         }
         adding.value = false;
     }

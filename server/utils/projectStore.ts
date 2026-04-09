@@ -7,6 +7,7 @@
  */
 
 import { getRedis } from './redis';
+import { getDb } from './neon';
 
 export interface Project {
     id: string;
@@ -148,6 +149,21 @@ const PREFIX = 'v2';
 
 // In-memory fallback for local dev (when KV is not configured)
 const memStore = new Map<string, string>();
+let _pgInitialized = false;
+
+async function ensurePgStoreTable() {
+    if (_pgInitialized) return;
+    const sql = getDb();
+    if (!sql) return;
+    await sql`
+        CREATE TABLE IF NOT EXISTS app_kv_store (
+            key TEXT PRIMARY KEY,
+            value JSONB NOT NULL,
+            updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+    `;
+    _pgInitialized = true;
+}
 
 async function kvGet<T>(key: string): Promise<T | null> {
     const redis = getRedis();
@@ -155,6 +171,13 @@ async function kvGet<T>(key: string): Promise<T | null> {
         const val = await redis.get(key);
         if (val === null || val === undefined) return null;
         return typeof val === 'string' ? JSON.parse(val) : (val as T);
+    }
+    const sql = getDb();
+    if (sql) {
+        await ensurePgStoreTable();
+        const rows = await sql`SELECT value FROM app_kv_store WHERE key = ${key} LIMIT 1`;
+        const row = rows[0] as { value?: T } | undefined;
+        return row?.value ?? null;
     }
     const val = memStore.get(key);
     return val ? JSON.parse(val) : null;
@@ -164,18 +187,35 @@ async function kvSet(key: string, value: unknown): Promise<void> {
     const redis = getRedis();
     if (redis) {
         await redis.set(key, JSON.stringify(value));
-    } else {
-        memStore.set(key, JSON.stringify(value));
+        return;
     }
+    const sql = getDb();
+    if (sql) {
+        await ensurePgStoreTable();
+        await sql`
+            INSERT INTO app_kv_store (key, value, updated_at)
+            VALUES (${key}, ${JSON.stringify(value)}::jsonb, NOW())
+            ON CONFLICT (key)
+            DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+        `;
+        return;
+    }
+    memStore.set(key, JSON.stringify(value));
 }
 
 async function kvDel(key: string): Promise<void> {
     const redis = getRedis();
     if (redis) {
         await redis.del(key);
-    } else {
-        memStore.delete(key);
+        return;
     }
+    const sql = getDb();
+    if (sql) {
+        await ensurePgStoreTable();
+        await sql`DELETE FROM app_kv_store WHERE key = ${key}`;
+        return;
+    }
+    memStore.delete(key);
 }
 
 // --- Projects ---

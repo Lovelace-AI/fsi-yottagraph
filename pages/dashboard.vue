@@ -11,7 +11,7 @@
             <div v-if="!activeProject" class="text-center pa-12">
                 <v-icon size="48" color="grey-darken-1">mdi-folder-alert-outline</v-icon>
                 <div class="text-body-1 text-grey mt-2">
-                    Select a project from the
+                    Select a project from the sidebar Project selector or the
                     <router-link to="/" class="text-primary">Projects</router-link>
                     page first.
                 </div>

@@ -63,6 +63,12 @@
                             <v-spacer />
                             <v-btn
                                 size="small"
+                                variant="text"
+                                icon="mdi-pencil-outline"
+                                @click.stop="startEdit(project)"
+                            />
+                            <v-btn
+                                size="small"
                                 color="error"
                                 variant="text"
                                 icon="mdi-delete-outline"
@@ -74,8 +80,43 @@
             </v-row>
         </div>
 
+        <!-- Edit Project Dialog -->
+        <v-dialog v-model="showEdit" max-width="500">
+            <v-card>
+                <v-card-title>Edit Project</v-card-title>
+                <v-card-text>
+                    <v-text-field
+                        v-model="editName"
+                        label="Project name"
+                        variant="outlined"
+                        density="comfortable"
+                        class="mb-2"
+                    />
+                    <v-textarea
+                        v-model="editDescription"
+                        label="Description"
+                        rows="2"
+                        variant="outlined"
+                        density="comfortable"
+                    />
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn variant="text" @click="showEdit = false">Cancel</v-btn>
+                    <v-btn
+                        color="primary"
+                        :disabled="!editName.trim()"
+                        :loading="saving"
+                        @click="saveEdit"
+                    >
+                        Save
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
         <!-- Wizard-style Create Dialog -->
-        <v-dialog v-model="showCreate" max-width="700" persistent>
+        <v-dialog v-model="showCreate" max-width="700">
             <!-- Step 1: Name + ingestion path -->
             <v-card v-if="wizardStep === 1">
                 <v-card-title>New Project</v-card-title>
@@ -155,7 +196,7 @@
             </v-card>
 
             <!-- Step 2: CSV Upload -->
-            <CsvUploadDialog
+            <ProjectsCsvUploadDialog
                 v-if="wizardStep === 2 && ingestionPath === 'csv' && createdProject"
                 :project-id="createdProject.id"
                 @cancel="finishWizard"
@@ -163,20 +204,25 @@
             />
 
             <!-- Step 2: Gemini Research -->
-            <GeminiResearchPanel
+            <ProjectsGeminiResearchPanel
                 v-if="wizardStep === 2 && ingestionPath === 'research' && createdProject"
                 :project-id="createdProject.id"
                 @cancel="finishWizard"
                 @imported="handleImported"
             />
         </v-dialog>
+
+        <ProjectsProjectDetailDialog
+            v-model="showProjectDetail"
+            :project="selectedProject"
+            @update:model-value="handleProjectDetailVisibility"
+        />
     </div>
 </template>
 
 <script setup lang="ts">
     const { projects, loading, error, fetchProjects, createProject, selectProject, deleteProject } =
         useProject();
-    const router = useRouter();
 
     const showCreate = ref(false);
     const wizardStep = ref(1);
@@ -185,6 +231,14 @@
     const newDescription = ref('');
     const creating = ref(false);
     const createdProject = ref<any>(null);
+
+    const showEdit = ref(false);
+    const editProjectId = ref('');
+    const editName = ref('');
+    const editDescription = ref('');
+    const saving = ref(false);
+    const showProjectDetail = ref(false);
+    const selectedProject = ref<any>(null);
 
     onMounted(() => {
         fetchProjects();
@@ -211,7 +265,7 @@
         if (ingestionPath.value === 'empty') {
             await selectProject(project);
             showCreate.value = false;
-            router.push('/agents');
+            openProjectDetail(project);
         } else {
             wizardStep.value = 2;
         }
@@ -220,26 +274,65 @@
     async function handleImported(count: number) {
         if (createdProject.value) {
             await selectProject(createdProject.value);
+            openProjectDetail(createdProject.value);
         }
         showCreate.value = false;
-        router.push('/agents');
     }
 
     function finishWizard() {
         if (createdProject.value) {
             selectProject(createdProject.value);
+            openProjectDetail(createdProject.value);
         }
         showCreate.value = false;
-        router.push('/agents');
     }
 
     async function handleSelect(project: any) {
         await selectProject(project);
-        router.push('/agents');
+        openProjectDetail(project);
+    }
+
+    function startEdit(project: any) {
+        editProjectId.value = project.id;
+        editName.value = project.name;
+        editDescription.value = project.description || '';
+        showEdit.value = true;
+    }
+
+    async function saveEdit() {
+        if (!editName.value.trim()) return;
+        saving.value = true;
+        try {
+            await $fetch(`/api/v2/projects/${editProjectId.value}`, {
+                method: 'PATCH',
+                body: { name: editName.value.trim(), description: editDescription.value.trim() },
+            });
+            await fetchProjects();
+            showEdit.value = false;
+        } catch {
+            // handled
+        }
+        saving.value = false;
     }
 
     async function handleDelete(id: string) {
         await deleteProject(id);
+        if (selectedProject.value?.id === id) {
+            selectedProject.value = null;
+            showProjectDetail.value = false;
+        }
+    }
+
+    function openProjectDetail(project: any) {
+        selectedProject.value = project;
+        showProjectDetail.value = true;
+    }
+
+    function handleProjectDetailVisibility(isVisible: boolean) {
+        showProjectDetail.value = isVisible;
+        if (!isVisible) {
+            selectedProject.value = null;
+        }
     }
 
     function formatDate(iso: string): string {

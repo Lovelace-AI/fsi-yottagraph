@@ -4,14 +4,13 @@
             <v-icon class="mr-2">mdi-file-upload-outline</v-icon>
             CSV Import
             <v-spacer />
-            <v-chip size="x-small" variant="tonal">Step {{ step }} of 3</v-chip>
+            <v-chip size="x-small" variant="tonal">Step {{ step }} of 2</v-chip>
         </v-card-title>
 
         <v-card-text>
             <!-- Step 1: Upload / Paste -->
             <div v-if="step === 1">
                 <v-file-input
-                    v-model="file"
                     label="Upload CSV file"
                     accept=".csv,.tsv,.txt"
                     prepend-icon="mdi-paperclip"
@@ -20,74 +19,94 @@
                     class="mb-4"
                     @update:model-value="handleFileUpload"
                 />
+                <v-alert
+                    v-if="fileLoaded"
+                    type="success"
+                    variant="tonal"
+                    density="compact"
+                    class="mb-4"
+                >
+                    File loaded: {{ fileLoaded }} ({{ csvText.split('\n').length }} lines)
+                </v-alert>
                 <div class="text-center text-body-2 text-grey mb-4">— or paste CSV text —</div>
                 <v-textarea
                     v-model="csvText"
                     label="Paste CSV text"
-                    placeholder="Name,Ticker,CIK&#10;Apple Inc,AAPL,320193&#10;Microsoft Corp,MSFT,789019"
+                    placeholder="Any CSV format — Gemini will figure out which columns contain entity names, tickers, CIKs, etc."
                     rows="6"
                     variant="outlined"
                     density="comfortable"
                 />
-            </div>
-
-            <!-- Step 2: Column Mapping -->
-            <div v-if="step === 2">
-                <div class="text-body-2 text-grey mb-4">
-                    {{ preview.entityCount }} rows detected. Map columns to entity fields:
+                <div class="text-caption text-grey">
+                    No fixed column format required. Gemini analyzes your headers and data to
+                    identify entities automatically.
                 </div>
-                <v-row v-for="(col, i) in columnMappings" :key="i" dense class="mb-1">
-                    <v-col cols="5">
-                        <v-chip variant="outlined" size="small">{{ col.header }}</v-chip>
-                    </v-col>
-                    <v-col cols="1" class="d-flex align-center justify-center">
-                        <v-icon size="16">mdi-arrow-right</v-icon>
-                    </v-col>
-                    <v-col cols="6">
-                        <v-select
-                            v-model="col.mapping"
-                            :items="mappingOptions"
-                            item-title="label"
-                            item-value="value"
-                            variant="outlined"
-                            density="compact"
-                            hide-details
-                        />
-                    </v-col>
-                </v-row>
-
-                <v-card v-if="preview.sampleRows?.length" variant="tonal" class="mt-4 pa-2">
-                    <div class="text-caption text-grey mb-1">Sample data (first 3 rows)</div>
-                    <div
-                        v-for="(row, i) in preview.sampleRows.slice(0, 3)"
-                        :key="i"
-                        class="text-caption"
-                    >
-                        {{ row.join(' | ') }}
-                    </div>
-                </v-card>
             </div>
 
-            <!-- Step 3: Resolution Preview -->
-            <div v-if="step === 3">
-                <div v-if="resolving" class="text-center pa-8">
+            <!-- Step 2: Gemini Interpretation + Resolution -->
+            <div v-if="step === 2">
+                <div v-if="interpreting" class="text-center pa-8">
+                    <v-progress-circular indeterminate color="primary" class="mb-4" />
+                    <div class="text-body-2 text-grey">
+                        Gemini is analyzing your CSV to identify entities...
+                    </div>
+                </div>
+                <div v-else-if="resolving" class="text-center pa-8">
                     <v-progress-circular indeterminate color="primary" class="mb-4" />
                     <div class="text-body-2 text-grey">
                         Resolving {{ preview.entityCount }} entities against Elemental...
                     </div>
                 </div>
+                <div v-else-if="preview.error" class="text-center pa-8">
+                    <v-icon size="48" color="error">mdi-alert-circle</v-icon>
+                    <div class="text-body-1 text-error mt-2">{{ preview.error }}</div>
+                </div>
                 <div v-else>
+                    <v-alert
+                        v-if="preview.explanation"
+                        type="info"
+                        variant="tonal"
+                        density="compact"
+                        class="mb-4"
+                    >
+                        {{ preview.explanation }}
+                    </v-alert>
+
                     <div class="d-flex align-center mb-4">
                         <v-chip
-                            :color="preview.resolvedCount > 0 ? 'success' : 'warning'"
+                            :color="
+                                (preview.resolvedCount ?? 0) > 0
+                                    ? 'success'
+                                    : preview.entityCount > 0
+                                      ? 'warning'
+                                      : 'grey'
+                            "
                             variant="tonal"
                             size="small"
                         >
-                            {{ preview.resolvedCount ?? 0 }} / {{ preview.entityCount }} resolved
+                            {{
+                                preview.resolvedCount !== undefined
+                                    ? `${preview.resolvedCount} / ${preview.entityCount} resolved`
+                                    : `${preview.entityCount} entities detected`
+                            }}
                         </v-chip>
+                        <v-spacer />
+                        <v-btn
+                            v-if="!preview.resolutionResults"
+                            size="small"
+                            color="primary"
+                            variant="text"
+                            prepend-icon="mdi-check-all"
+                            :loading="resolving"
+                            @click="resolveEntities"
+                        >
+                            Resolve All
+                        </v-btn>
                     </div>
+
+                    <!-- Show detected entities before resolution -->
                     <v-data-table
-                        v-if="preview.resolutionResults?.length"
+                        v-if="preview.resolutionResults"
                         :headers="resolutionHeaders"
                         :items="preview.resolutionResults"
                         density="compact"
@@ -102,30 +121,47 @@
                             {{ (value * 100).toFixed(0) }}%
                         </template>
                     </v-data-table>
+                    <v-data-table
+                        v-else
+                        :headers="entityPreviewHeaders"
+                        :items="preview.entities || []"
+                        density="compact"
+                        :items-per-page="10"
+                    >
+                        <template #item.ticker="{ value }">
+                            <v-chip v-if="value" size="x-small" variant="tonal">{{ value }}</v-chip>
+                            <span v-else class="text-grey">—</span>
+                        </template>
+                    </v-data-table>
                 </div>
             </div>
         </v-card-text>
 
         <v-card-actions>
-            <v-btn v-if="step > 1" variant="text" @click="step--">Back</v-btn>
+            <v-btn v-if="step > 1" variant="text" @click="step = 1">Back</v-btn>
             <v-spacer />
             <v-btn variant="text" @click="$emit('cancel')">Cancel</v-btn>
             <v-btn
                 v-if="step === 1"
                 color="primary"
                 :disabled="!csvText.trim()"
-                @click="parseAndPreview"
+                :loading="interpreting"
+                @click="interpretCsv"
             >
-                Next
+                Analyze CSV
             </v-btn>
-            <v-btn v-if="step === 2" color="primary" :loading="resolving" @click="resolvePreview">
+            <v-btn
+                v-if="step === 2 && !preview.resolutionResults && preview.entityCount > 0"
+                color="primary"
+                :loading="resolving"
+                @click="resolveEntities"
+            >
                 Resolve {{ preview.entityCount }} Entities
             </v-btn>
             <v-btn
-                v-if="step === 3"
+                v-if="step === 2 && preview.resolutionResults"
                 color="primary"
                 :loading="importing"
-                :disabled="!preview.resolutionResults?.length"
                 @click="importEntities"
             >
                 Import {{ preview.resolvedCount ?? preview.entityCount }} Entities
@@ -139,24 +175,12 @@
     const emit = defineEmits<{ cancel: []; imported: [count: number] }>();
 
     const step = ref(1);
-    const file = ref<File[]>([]);
     const csvText = ref('');
-    const columnMappings = ref<{ header: string; mapping: string }[]>([]);
+    const fileLoaded = ref('');
     const preview = ref<any>({});
+    const interpreting = ref(false);
     const resolving = ref(false);
     const importing = ref(false);
-
-    const mappingOptions = [
-        { label: 'Company Name', value: 'name' },
-        { label: 'CIK', value: 'cik' },
-        { label: 'Ticker / Symbol', value: 'ticker' },
-        { label: 'CUSIP', value: 'cusip' },
-        { label: 'FIGI', value: 'figi' },
-        { label: 'ISIN', value: 'isin' },
-        { label: 'LEI', value: 'lei' },
-        { label: 'EIN', value: 'ein' },
-        { label: '(Ignore)', value: 'ignore' },
-    ];
 
     const resolutionHeaders = [
         { title: 'Name', key: 'name' },
@@ -166,40 +190,51 @@
         { title: 'IDs', key: 'resolutionStrength', align: 'center' as const },
     ];
 
-    async function handleFileUpload() {
-        if (!file.value?.length) return;
-        const f = file.value[0];
+    const entityPreviewHeaders = [
+        { title: 'Name', key: 'name' },
+        { title: 'Ticker', key: 'ticker' },
+        { title: 'CIK', key: 'cik' },
+        { title: 'LEI', key: 'lei' },
+        { title: 'Identifiers', key: 'idCount', align: 'center' as const },
+    ];
+
+    async function handleFileUpload(files: File | File[] | null) {
+        if (!files) return;
+        const f = Array.isArray(files) ? files[0] : files;
+        if (!f) return;
         csvText.value = await f.text();
+        fileLoaded.value = f.name;
     }
 
-    async function parseAndPreview() {
+    async function interpretCsv() {
         if (!csvText.value.trim()) return;
+        interpreting.value = true;
+        step.value = 2;
         try {
             preview.value = await $fetch(`/api/v2/projects/${props.projectId}/csv-preview`, {
                 method: 'POST',
                 body: { csvText: csvText.value },
+                timeout: 60000,
             });
-            columnMappings.value = preview.value.mappings || [];
-            step.value = 2;
         } catch (e: any) {
-            preview.value = { error: e.data?.statusMessage || 'Parse failed' };
+            preview.value = { error: e.data?.statusMessage || 'CSV analysis failed' };
         }
+        interpreting.value = false;
     }
 
-    async function resolvePreview() {
+    async function resolveEntities() {
         resolving.value = true;
-        step.value = 3;
         try {
             preview.value = await $fetch(`/api/v2/projects/${props.projectId}/csv-preview`, {
                 method: 'POST',
-                body: {
-                    csvText: csvText.value,
-                    columnMappings: columnMappings.value,
-                    resolve: true,
-                },
+                body: { csvText: csvText.value, resolve: true },
+                timeout: 120000,
             });
         } catch (e: any) {
-            preview.value = { error: e.data?.statusMessage || 'Resolution failed' };
+            preview.value = {
+                ...preview.value,
+                error: e.data?.statusMessage || 'Resolution failed',
+            };
         }
         resolving.value = false;
     }
@@ -207,16 +242,21 @@
     async function importEntities() {
         importing.value = true;
         try {
-            const batch = (preview.value.resolutionResults || [])
-                .filter((r: any) => r.matched)
-                .map((r: any) => ({
-                    name: r.name,
-                    ticker: r.identifiers?.ticker,
-                    cik: r.identifiers?.cik,
-                }));
+            const entitiesToImport = preview.value.allEntities || preview.value.entities || [];
+            const batch = entitiesToImport.map((e: any) => ({
+                name: e.name,
+                ticker: e.ticker,
+                cik: e.cik,
+                lei: e.lei,
+                ein: e.ein,
+                cusip: e.cusip,
+                figi: e.figi,
+                isin: e.isin,
+            }));
             await $fetch(`/api/v2/projects/${props.projectId}/entities`, {
                 method: 'POST',
                 body: { batch, sourceType: 'csv' },
+                timeout: 120000,
             });
             emit('imported', batch.length);
         } catch {

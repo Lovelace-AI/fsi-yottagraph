@@ -35,13 +35,16 @@ export function isGeminiConfigured(): boolean {
 
 export async function generateContent(
     prompt: string,
-    options?: { model?: string; systemInstruction?: string }
+    options?: { model?: string; systemInstruction?: string; temperature?: number }
 ): Promise<string> {
     const model = getGeminiModel(options?.model);
     const result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         ...(options?.systemInstruction && {
             systemInstruction: { role: 'system', parts: [{ text: options.systemInstruction }] },
+        }),
+        ...(options?.temperature !== undefined && {
+            generationConfig: { temperature: options.temperature },
         }),
     });
     return result.response.text();

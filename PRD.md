@@ -50,13 +50,19 @@ The product is therefore both:
 
 ---
 
-## 2.1 Integration Model: MCP vs APIs
+## 2.1 Runtime Model: Agent-First with Transitional APIs
 
-This app demonstrates **both** MCP-style tool use and conventional application API use. The distinction should be explicit because part of the product story is not just "we use AI," but **how the system gets context and moves data through the stack**.
+The intended runtime model is:
+
+`UI -> deployed agents -> Elemental MCP/tooling`
+
+This is the architecture the product is demonstrating.
+
+At the same time, the current implementation still contains a **transitional layer** where some workflows are handled by app-side APIs and direct gateway REST calls. Those paths are compatibility scaffolding and should be treated as migration debt, not the end-state architecture.
 
 ### MCP in This Product
 
-MCP is used to represent the **agent/tool-calling pattern** for contextual retrieval and graph-aware operations.
+MCP represents the **agent/tool-calling pattern** for contextual retrieval and graph-aware operations. In the intended architecture, this is how analytical context should be gathered.
 
 In product terms, MCP is where we want the audience to understand:
 
@@ -69,7 +75,7 @@ In the broader architecture story, the **History Agent** is the clearest MCP-sha
 
 ### APIs in This Product
 
-APIs are used for the **application delivery layer** and for app-owned workflows that power the UI.
+APIs are used for the **application delivery layer** and app-owned workflows that power the UI.
 
 In product terms, APIs are responsible for:
 
@@ -81,14 +87,16 @@ In product terms, APIs are responsible for:
 - comparison endpoints,
 - and the server-side orchestration needed to turn UI actions into results.
 
-These APIs are what make the product usable as an application. They are not the core thesis by themselves; they are the delivery mechanism around the agent thesis.
+These APIs make the product usable as an application. They are not the core thesis by themselves; they are the delivery mechanism around the agent thesis.
+
+In the target state, APIs remain responsible for product plumbing and persistence, while intelligence work is delegated to deployed agents.
 
 ### Simple Rule of Thumb
 
 Readers should understand the system this way:
 
-- **Use MCP when the story is "an agent is calling a capability to retrieve or reason over shared context."**
-- **Use APIs when the story is "the app is handling a product workflow, persisting state, or serving the UI."**
+- **Use MCP/tool-calling when the story is "a deployed agent is retrieving or reasoning over shared context."**
+- **Use app APIs when the story is "the product is handling workflow state, persistence, or UI transport."**
 
 ### Why This Matters to the Demo
 
@@ -97,10 +105,10 @@ The demo is stronger when this distinction is legible:
 1. If everything is described as "API calls," the agent/tooling story gets flattened and the architecture feels conventional.
 2. If everything is described as "MCP," the app can sound more magical than it really is and the product layer becomes unclear.
 
-The point of the demo is that both are necessary:
+The point of the demo is that both are necessary, but with a strict boundary:
 
-- **MCP/tool calling** gives agents a disciplined way to operate over shared context.
-- **Application APIs** turn those capabilities into a usable product experience.
+- **MCP/tool calling through deployed agents** provides the intelligence runtime.
+- **Application APIs** provide product orchestration and persistence around that runtime.
 
 ---
 
@@ -183,7 +191,7 @@ This step demonstrates that the app can move from ambiguous user input to a usab
 
 The system resolves input entities against Elemental and surfaces confidence, identifiers, and match method. This proves that the project is anchored to real graph entities rather than free-text labels.
 
-**Integration note:** This step is typically exposed through app-owned APIs, even when the underlying lookup logic reaches into Elemental data services.
+**Integration note:** The UX can remain API-shaped, but canonical resolution should execute via deployed agents instead of direct app-side graph calls.
 
 ### 6.4 Agent Execution
 
@@ -194,7 +202,7 @@ The user opens the Agents page and runs **Scan All**. The app shows pipeline act
 - runs analytical reasoning,
 - and formats outputs for the UI.
 
-**Integration note:** This is the part of the product where the MCP story should be most visible. The pipeline should read as agents using tool-like retrieval capabilities over shared context, with app APIs coordinating execution and persistence around that core loop.
+**Integration note:** This is where the architecture must be literal, not metaphorical. The pipeline should execute in deployed agents, with app APIs coordinating execution, persistence, and UI transport.
 
 ### 6.5 Inspection
 
@@ -240,8 +248,9 @@ This is one of the most important moments in the product narrative.
 
 1. The product narrative must clearly distinguish **MCP/tool-calling responsibilities** from **application API responsibilities**.
 2. The History Agent and contextual retrieval flow must be described as the primary MCP-shaped part of the system.
-3. Project CRUD, ingestion, comparison, and persistence flows must be described as application API responsibilities.
-4. The demo should make it understandable that MCP and APIs are complementary rather than competing patterns.
+3. Project CRUD and persistence flows must be described as application API responsibilities.
+4. Scan, contextual analysis, and entity-resolution intelligence flows must be described as **deployed-agent responsibilities**.
+5. Any direct app-side Elemental REST usage must be documented as transitional scaffolding with a migration path.
 
 ### 7.2 Nice-to-Have Demonstration Requirements
 
