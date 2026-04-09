@@ -1,0 +1,504 @@
+Security,Ticker,CIK,Watchlist Type,Primary Entity Hint,Secondary Entity Hint
+3M,MMM,0000066740,equity,organization,financial_instrument
+A. O. Smith,AOS,0000091142,equity,organization,financial_instrument
+Abbott Laboratories,ABT,0000001800,equity,organization,financial_instrument
+AbbVie,ABBV,0001551152,equity,organization,financial_instrument
+Accenture,ACN,0001467373,equity,organization,financial_instrument
+Adobe Inc.,ADBE,0000796343,equity,organization,financial_instrument
+Advanced Micro Devices,AMD,0000002488,equity,organization,financial_instrument
+AES Corporation,AES,0000874761,equity,organization,financial_instrument
+Aflac,AFL,0000004977,equity,organization,financial_instrument
+Agilent Technologies,A,0001090872,equity,organization,financial_instrument
+Air Products,APD,0000002969,equity,organization,financial_instrument
+Airbnb,ABNB,0001559720,equity,organization,financial_instrument
+Akamai Technologies,AKAM,0001086222,equity,organization,financial_instrument
+Albemarle Corporation,ALB,0000915913,equity,organization,financial_instrument
+Alexandria Real Estate Equities,ARE,0001035443,equity,organization,financial_instrument
+Align Technology,ALGN,0001097149,equity,organization,financial_instrument
+Allegion,ALLE,0001579241,equity,organization,financial_instrument
+Alliant Energy,LNT,0000352541,equity,organization,financial_instrument
+Allstate,ALL,0000899051,equity,organization,financial_instrument
+Alphabet Inc. (Class A),GOOGL,0001652044,equity,organization,financial_instrument
+Alphabet Inc. (Class C),GOOG,0001652044,equity,organization,financial_instrument
+Altria,MO,0000764180,equity,organization,financial_instrument
+"Amazon"")",AMZN,0001018724,equity,organization,financial_instrument
+Amcor,AMCR,0001748790,equity,organization,financial_instrument
+Ameren,AEE,0001002910,equity,organization,financial_instrument
+American Electric Power,AEP,0000004904,equity,organization,financial_instrument
+American Express,AXP,0000004962,equity,organization,financial_instrument
+American International Group,AIG,0000005272,equity,organization,financial_instrument
+American Tower,AMT,0001053507,equity,organization,financial_instrument
+American Water Works,AWK,0001410636,equity,organization,financial_instrument
+Ameriprise Financial,AMP,0000820027,equity,organization,financial_instrument
+Ametek,AME,0001037868,equity,organization,financial_instrument
+Amgen,AMGN,0000318154,equity,organization,financial_instrument
+Amphenol,APH,0000820313,equity,organization,financial_instrument
+Analog Devices,ADI,0000006281,equity,organization,financial_instrument
+"Aon plc"")",AON,0000315293,equity,organization,financial_instrument
+APA Corporation,APA,0001841666,equity,organization,financial_instrument
+Apollo Global Management,APO,0001858681,equity,organization,financial_instrument
+Apple Inc.,AAPL,0000320193,equity,organization,financial_instrument
+Applied Materials,AMAT,0000006951,equity,organization,financial_instrument
+AppLovin,APP,0001751008,equity,organization,financial_instrument
+Aptiv,APTV,0001521332,equity,organization,financial_instrument
+Arch Capital Group,ACGL,0000947484,equity,organization,financial_instrument
+Archer Daniels Midland,ADM,0000007084,equity,organization,financial_instrument
+Ares Management,ARES,0001176948,equity,organization,financial_instrument
+Arista Networks,ANET,0001596532,equity,organization,financial_instrument
+Arthur J. Gallagher & Co.,AJG,0000354190,equity,organization,financial_instrument
+Assurant,AIZ,0001267238,equity,organization,financial_instrument
+AT&T,T,0000732717,equity,organization,financial_instrument
+Atmos Energy,ATO,0000731802,equity,organization,financial_instrument
+Autodesk,ADSK,0000769397,equity,organization,financial_instrument
+"Automatic Data Processing"")",ADP,0000008670,equity,organization,financial_instrument
+AutoZone,AZO,0000866787,equity,organization,financial_instrument
+AvalonBay Communities,AVB,0000915912,equity,organization,financial_instrument
+Avery Dennison,AVY,0000008818,equity,organization,financial_instrument
+Axon Enterprise,AXON,0001069183,equity,organization,financial_instrument
+Baker Hughes,BKR,0001701605,equity,organization,financial_instrument
+Ball Corporation,BALL,0000009389,equity,organization,financial_instrument
+Bank of America,BAC,0000070858,equity,organization,financial_instrument
+Baxter International,BAX,0000010456,equity,organization,financial_instrument
+"Becton Dickinson"")",BDX,0000010795,equity,organization,financial_instrument
+Berkshire Hathaway,BRK.B,0001067983,equity,organization,financial_instrument
+Best Buy,BBY,0000764478,equity,organization,financial_instrument
+Bio-Techne,TECH,0000842023,equity,organization,financial_instrument
+Biogen,BIIB,0000875045,equity,organization,financial_instrument
+BlackRock,BLK,0002012383,equity,organization,financial_instrument
+Blackstone Inc.,BX,0001393818,equity,organization,financial_instrument
+"Block, Inc.",XYZ,0001512673,equity,organization,financial_instrument
+BNY Mellon,BK,0001390777,equity,organization,financial_instrument
+Boeing,BA,0000012927,equity,organization,financial_instrument
+Booking Holdings,BKNG,0001075531,equity,organization,financial_instrument
+Boston Scientific,BSX,0000885725,equity,organization,financial_instrument
+Bristol Myers Squibb,BMY,0000014272,equity,organization,financial_instrument
+Broadcom,AVGO,0001730168,equity,organization,financial_instrument
+Broadridge Financial Solutions,BR,0001383312,equity,organization,financial_instrument
+Brown & Brown,BRO,0000079282,equity,organization,financial_instrument
+Brown–Forman,BF.B,0000014693,equity,organization,financial_instrument
+Builders FirstSource,BLDR,0001316835,equity,organization,financial_instrument
+Bunge Global,BG,0001996862,equity,organization,financial_instrument
+"BXP, Inc.",BXP,0001037540,equity,organization,financial_instrument
+C.H. Robinson,CHRW,0001043277,equity,organization,financial_instrument
+Cadence Design Systems,CDNS,0000813672,equity,organization,financial_instrument
+Camden Property Trust,CPT,0000906345,equity,organization,financial_instrument
+Campbell's Company (The),CPB,0000016732,equity,organization,financial_instrument
+Capital One,COF,0000927628,equity,organization,financial_instrument
+Cardinal Health,CAH,0000721371,equity,organization,financial_instrument
+Carnival,CCL,0000815097,equity,organization,financial_instrument
+Carrier Global,CARR,0001783180,equity,organization,financial_instrument
+Carvana,CVNA,0001690820,equity,organization,financial_instrument
+Casey's,CASY,0000726958,equity,organization,financial_instrument
+Caterpillar Inc.,CAT,0000018230,equity,organization,financial_instrument
+Cboe Global Markets,CBOE,0001374310,equity,organization,financial_instrument
+CBRE Group,CBRE,0001138118,equity,organization,financial_instrument
+CDW Corporation,CDW,0001402057,equity,organization,financial_instrument
+Cencora,COR,0001140859,equity,organization,financial_instrument
+Centene Corporation,CNC,0001071739,equity,organization,financial_instrument
+CenterPoint Energy,CNP,0001130310,equity,organization,financial_instrument
+CF Industries,CF,0001324404,equity,organization,financial_instrument
+Charles River Laboratories,CRL,0001100682,equity,organization,financial_instrument
+Charles Schwab Corporation,SCHW,0000316709,equity,organization,financial_instrument
+Charter Communications,CHTR,0001091667,equity,organization,financial_instrument
+Chevron Corporation,CVX,0000093410,equity,organization,financial_instrument
+Chipotle Mexican Grill,CMG,0001058090,equity,organization,financial_instrument
+Chubb Limited,CB,0000896159,equity,organization,financial_instrument
+Church & Dwight,CHD,0000313927,equity,organization,financial_instrument
+Ciena,CIEN,0000936395,equity,organization,financial_instrument
+Cigna,CI,0001739940,equity,organization,financial_instrument
+Cincinnati Financial,CINF,0000020286,equity,organization,financial_instrument
+Cintas,CTAS,0000723254,equity,organization,financial_instrument
+Cisco,CSCO,0000858877,equity,organization,financial_instrument
+Citigroup,C,0000831001,equity,organization,financial_instrument
+Citizens Financial Group,CFG,0000759944,equity,organization,financial_instrument
+Clorox,CLX,0000021076,equity,organization,financial_instrument
+CME Group,CME,0001156375,equity,organization,financial_instrument
+CMS Energy,CMS,0000811156,equity,organization,financial_instrument
+Coca-Cola Company (The),KO,0000021344,equity,organization,financial_instrument
+Cognizant,CTSH,0001058290,equity,organization,financial_instrument
+Coherent Corp.,COHR,0000820318,equity,organization,financial_instrument
+Coinbase,COIN,0001679788,equity,organization,financial_instrument
+Colgate-Palmolive,CL,0000021665,equity,organization,financial_instrument
+Comcast,CMCSA,0001166691,equity,organization,financial_instrument
+Comfort Systems USA,FIX,0001035983,equity,organization,financial_instrument
+Conagra Brands,CAG,0000023217,equity,organization,financial_instrument
+ConocoPhillips,COP,0001163165,equity,organization,financial_instrument
+Consolidated Edison,ED,0001047862,equity,organization,financial_instrument
+Constellation Brands,STZ,0000016918,equity,organization,financial_instrument
+Constellation Energy,CEG,0001868275,equity,organization,financial_instrument
+Cooper Companies (The),COO,0000711404,equity,organization,financial_instrument
+Copart,CPRT,0000900075,equity,organization,financial_instrument
+Corning Inc.,GLW,0000024741,equity,organization,financial_instrument
+Corpay,CPAY,0001175454,equity,organization,financial_instrument
+Corteva,CTVA,0001755672,equity,organization,financial_instrument
+CoStar Group,CSGP,0001057352,equity,organization,financial_instrument
+Costco,COST,0000909832,equity,organization,financial_instrument
+Coterra,CTRA,0000858470,equity,organization,financial_instrument
+CRH plc,CRH,0000849395,equity,organization,financial_instrument
+CrowdStrike,CRWD,0001535527,equity,organization,financial_instrument
+Crown Castle,CCI,0001051470,equity,organization,financial_instrument
+CSX Corporation,CSX,0000277948,equity,organization,financial_instrument
+Cummins,CMI,0000026172,equity,organization,financial_instrument
+CVS Health,CVS,0000064803,equity,organization,financial_instrument
+Danaher Corporation,DHR,0000313616,equity,organization,financial_instrument
+Darden Restaurants,DRI,0000940944,equity,organization,financial_instrument
+Datadog,DDOG,0001561550,equity,organization,financial_instrument
+DaVita,DVA,0000927066,equity,organization,financial_instrument
+Deckers Brands,DECK,0000910521,equity,organization,financial_instrument
+Deere & Company,DE,0000315189,equity,organization,financial_instrument
+Dell Technologies,DELL,0001571996,equity,organization,financial_instrument
+Delta Air Lines,DAL,0000027904,equity,organization,financial_instrument
+Devon Energy,DVN,0001090012,equity,organization,financial_instrument
+Dexcom,DXCM,0001093557,equity,organization,financial_instrument
+Diamondback Energy,FANG,0001539838,equity,organization,financial_instrument
+Digital Realty,DLR,0001297996,equity,organization,financial_instrument
+Dollar General,DG,0000029534,equity,organization,financial_instrument
+Dollar Tree,DLTR,0000935703,equity,organization,financial_instrument
+Dominion Energy,D,0000715957,equity,organization,financial_instrument
+Domino's,DPZ,0001286681,equity,organization,financial_instrument
+DoorDash,DASH,0001792789,equity,organization,financial_instrument
+Dover Corporation,DOV,0000029905,equity,organization,financial_instrument
+Dow Inc.,DOW,0001751788,equity,organization,financial_instrument
+D. R. Horton,DHI,0000882184,equity,organization,financial_instrument
+DTE Energy,DTE,0000936340,equity,organization,financial_instrument
+Duke Energy,DUK,0001326160,equity,organization,financial_instrument
+DuPont,DD,0001666700,equity,organization,financial_instrument
+Eaton Corporation,ETN,0001551182,equity,organization,financial_instrument
+eBay Inc.,EBAY,0001065088,equity,organization,financial_instrument
+EchoStar,SATS,0001415404,equity,organization,financial_instrument
+Ecolab,ECL,0000031462,equity,organization,financial_instrument
+Edison International,EIX,0000827052,equity,organization,financial_instrument
+Edwards Lifesciences,EW,0001099800,equity,organization,financial_instrument
+Electronic Arts,EA,0000712515,equity,organization,financial_instrument
+Elevance Health,ELV,0001156039,equity,organization,financial_instrument
+Emcor,EME,0000105634,equity,organization,financial_instrument
+Emerson Electric,EMR,0000032604,equity,organization,financial_instrument
+Entergy,ETR,0000065984,equity,organization,financial_instrument
+EOG Resources,EOG,0000821189,equity,organization,financial_instrument
+EPAM Systems,EPAM,0001352010,equity,organization,financial_instrument
+EQT Corporation,EQT,0000033213,equity,organization,financial_instrument
+Equifax,EFX,0000033185,equity,organization,financial_instrument
+Equinix,EQIX,0001101239,equity,organization,financial_instrument
+Equity Residential,EQR,0000906107,equity,organization,financial_instrument
+Erie Indemnity,ERIE,0000922621,equity,organization,financial_instrument
+Essex Property Trust,ESS,0000920522,equity,organization,financial_instrument
+Estée Lauder Companies (The),EL,0001001250,equity,organization,financial_instrument
+Everest Group,EG,0001095073,equity,organization,financial_instrument
+Evergy,EVRG,0001711269,equity,organization,financial_instrument
+Eversource Energy,ES,0000072741,equity,organization,financial_instrument
+Exelon,EXC,0001109357,equity,organization,financial_instrument
+Expand Energy,EXE,0000895126,equity,organization,financial_instrument
+Expedia Group,EXPE,0001324424,equity,organization,financial_instrument
+Expeditors International,EXPD,0000746515,equity,organization,financial_instrument
+Extra Space Storage,EXR,0001289490,equity,organization,financial_instrument
+ExxonMobil,XOM,0000034088,equity,organization,financial_instrument
+"F5, Inc.",FFIV,0001048695,equity,organization,financial_instrument
+FactSet,FDS,0001013237,equity,organization,financial_instrument
+Fair Isaac,FICO,0000814547,equity,organization,financial_instrument
+Fastenal,FAST,0000815556,equity,organization,financial_instrument
+Federal Realty Investment Trust,FRT,0000034903,equity,organization,financial_instrument
+FedEx,FDX,0001048911,equity,organization,financial_instrument
+"Fidelity National Information Services"")",FIS,0001136893,equity,organization,financial_instrument
+Fifth Third Bancorp,FITB,0000035527,equity,organization,financial_instrument
+First Solar,FSLR,0001274494,equity,organization,financial_instrument
+FirstEnergy,FE,0001031296,equity,organization,financial_instrument
+Fiserv,FISV,0000798354,equity,organization,financial_instrument
+Ford Motor Company,F,0000037996,equity,organization,financial_instrument
+Fortinet,FTNT,0001262039,equity,organization,financial_instrument
+Fortive,FTV,0001659166,equity,organization,financial_instrument
+Fox Corporation (Class A),FOXA,0001754301,equity,organization,financial_instrument
+Fox Corporation (Class B),FOX,0001754301,equity,organization,financial_instrument
+Franklin Resources,BEN,0000038777,equity,organization,financial_instrument
+Freeport-McMoRan,FCX,0000831259,equity,organization,financial_instrument
+Garmin,GRMN,0001121788,equity,organization,financial_instrument
+Gartner,IT,0000749251,equity,organization,financial_instrument
+GE Aerospace,GE,0000040545,equity,organization,financial_instrument
+GE HealthCare,GEHC,0001932393,equity,organization,financial_instrument
+GE Vernova,GEV,0001996810,equity,organization,financial_instrument
+Gen Digital,GEN,0000849399,equity,organization,financial_instrument
+Generac,GNRC,0001474735,equity,organization,financial_instrument
+General Dynamics,GD,0000040533,equity,organization,financial_instrument
+General Mills,GIS,0000040704,equity,organization,financial_instrument
+General Motors,GM,0001467858,equity,organization,financial_instrument
+Genuine Parts Company,GPC,0000040987,equity,organization,financial_instrument
+Gilead Sciences,GILD,0000882095,equity,organization,financial_instrument
+Global Payments,GPN,0001123360,equity,organization,financial_instrument
+Globe Life,GL,0000320335,equity,organization,financial_instrument
+GoDaddy,GDDY,0001609711,equity,organization,financial_instrument
+Goldman Sachs,GS,0000886982,equity,organization,financial_instrument
+Halliburton,HAL,0000045012,equity,organization,financial_instrument
+Hartford (The),HIG,0000874766,equity,organization,financial_instrument
+Hasbro,HAS,0000046080,equity,organization,financial_instrument
+HCA Healthcare,HCA,0000860730,equity,organization,financial_instrument
+Healthpeak Properties,DOC,0000765880,equity,organization,financial_instrument
+Henry Schein,HSIC,0001000228,equity,organization,financial_instrument
+Hershey Company (The),HSY,0000047111,equity,organization,financial_instrument
+Hewlett Packard Enterprise,HPE,0001645590,equity,organization,financial_instrument
+Hilton Worldwide,HLT,0001585689,equity,organization,financial_instrument
+Home Depot (The),HD,0000354950,equity,organization,financial_instrument
+Honeywell,HON,0000773840,equity,organization,financial_instrument
+Hormel Foods,HRL,0000048465,equity,organization,financial_instrument
+Host Hotels & Resorts,HST,0001070750,equity,organization,financial_instrument
+Howmet Aerospace,HWM,0000004281,equity,organization,financial_instrument
+HP Inc.,HPQ,0000047217,equity,organization,financial_instrument
+Hubbell Incorporated,HUBB,0000048898,equity,organization,financial_instrument
+Humana,HUM,0000049071,equity,organization,financial_instrument
+Huntington Bancshares,HBAN,0000049196,equity,organization,financial_instrument
+Huntington Ingalls Industries,HII,0001501585,equity,organization,financial_instrument
+IBM,IBM,0000051143,equity,organization,financial_instrument
+IDEX Corporation,IEX,0000832101,equity,organization,financial_instrument
+Idexx Laboratories,IDXX,0000874716,equity,organization,financial_instrument
+Illinois Tool Works,ITW,0000049826,equity,organization,financial_instrument
+Incyte,INCY,0000879169,equity,organization,financial_instrument
+Ingersoll Rand,IR,0001699150,equity,organization,financial_instrument
+"Insulet Corporation"")",PODD,0001145197,equity,organization,financial_instrument
+Intel,INTC,0000050863,equity,organization,financial_instrument
+Interactive Brokers,IBKR,0001381197,equity,organization,financial_instrument
+Intercontinental Exchange,ICE,0001571949,equity,organization,financial_instrument
+International Flavors & Fragrances,IFF,0000051253,equity,organization,financial_instrument
+International Paper,IP,0000051434,equity,organization,financial_instrument
+Intuit,INTU,0000896878,equity,organization,financial_instrument
+Intuitive Surgical,ISRG,0001035267,equity,organization,financial_instrument
+Invesco,IVZ,0000914208,equity,organization,financial_instrument
+Invitation Homes,INVH,0001687229,equity,organization,financial_instrument
+IQVIA,IQV,0001478242,equity,organization,financial_instrument
+"Iron Mountain"")",IRM,0001020569,equity,organization,financial_instrument
+J.B. Hunt,JBHT,0000728535,equity,organization,financial_instrument
+Jabil,JBL,0000898293,equity,organization,financial_instrument
+Jack Henry & Associates,JKHY,0000779152,equity,organization,financial_instrument
+Jacobs Solutions,J,0000052988,equity,organization,financial_instrument
+Johnson & Johnson,JNJ,0000200406,equity,organization,financial_instrument
+Johnson Controls,JCI,0000833444,equity,organization,financial_instrument
+JPMorgan Chase,JPM,0000019617,equity,organization,financial_instrument
+Kenvue,KVUE,0001944048,equity,organization,financial_instrument
+Keurig Dr Pepper,KDP,0001418135,equity,organization,financial_instrument
+KeyCorp,KEY,0000091576,equity,organization,financial_instrument
+Keysight Technologies,KEYS,0001601046,equity,organization,financial_instrument
+Kimberly-Clark,KMB,0000055785,equity,organization,financial_instrument
+Kimco Realty,KIM,0000879101,equity,organization,financial_instrument
+Kinder Morgan,KMI,0001506307,equity,organization,financial_instrument
+KKR & Co.,KKR,0001404912,equity,organization,financial_instrument
+KLA Corporation,KLAC,0000319201,equity,organization,financial_instrument
+Kraft Heinz,KHC,0001637459,equity,organization,financial_instrument
+Kroger,KR,0000056873,equity,organization,financial_instrument
+L3Harris,LHX,0000202058,equity,organization,financial_instrument
+Labcorp,LH,0000920148,equity,organization,financial_instrument
+Lam Research,LRCX,0000707549,equity,organization,financial_instrument
+Las Vegas Sands,LVS,0001300514,equity,organization,financial_instrument
+Leidos,LDOS,0001336920,equity,organization,financial_instrument
+Lennar,LEN,0000920760,equity,organization,financial_instrument
+Lennox International,LII,0001069202,equity,organization,financial_instrument
+Lilly (Eli),LLY,0000059478,equity,organization,financial_instrument
+Linde plc,LIN,0001707925,equity,organization,financial_instrument
+Live Nation Entertainment,LYV,0001335258,equity,organization,financial_instrument
+Lockheed Martin,LMT,0000936468,equity,organization,financial_instrument
+Loews Corporation,L,0000060086,equity,organization,financial_instrument
+Lowe's,LOW,0000060667,equity,organization,financial_instrument
+Lululemon Athletica,LULU,0001397187,equity,organization,financial_instrument
+Lumentum,LITE,0001633978,equity,organization,financial_instrument
+LyondellBasell,LYB,0001489393,equity,organization,financial_instrument
+M&T Bank,MTB,0000036270,equity,organization,financial_instrument
+Marathon Petroleum,MPC,0001510295,equity,organization,financial_instrument
+Marriott International,MAR,0001048286,equity,organization,financial_instrument
+Marsh McLennan,MRSH,0000062709,equity,organization,financial_instrument
+Martin Marietta Materials,MLM,0000916076,equity,organization,financial_instrument
+Masco,MAS,0000062996,equity,organization,financial_instrument
+Mastercard,MA,0001141391,equity,organization,financial_instrument
+McCormick & Company,MKC,0000063754,equity,organization,financial_instrument
+McDonald's,MCD,0000063908,equity,organization,financial_instrument
+McKesson Corporation,MCK,0000927653,equity,organization,financial_instrument
+Medtronic,MDT,0001613103,equity,organization,financial_instrument
+Merck & Co.,MRK,0000310158,equity,organization,financial_instrument
+Meta Platforms,META,0001326801,equity,organization,financial_instrument
+MetLife,MET,0001099219,equity,organization,financial_instrument
+Mettler Toledo,MTD,0001037646,equity,organization,financial_instrument
+MGM Resorts,MGM,0000789570,equity,organization,financial_instrument
+Microchip Technology,MCHP,0000827054,equity,organization,financial_instrument
+Micron Technology,MU,0000723125,equity,organization,financial_instrument
+Microsoft,MSFT,0000789019,equity,organization,financial_instrument
+Mid-America Apartment Communities,MAA,0000912595,equity,organization,financial_instrument
+Moderna,MRNA,0001682852,equity,organization,financial_instrument
+Molson Coors Beverage Company,TAP,0000024545,equity,organization,financial_instrument
+Mondelez International,MDLZ,0001103982,equity,organization,financial_instrument
+Monolithic Power Systems,MPWR,0001280452,equity,organization,financial_instrument
+Monster Beverage,MNST,0000865752,equity,organization,financial_instrument
+Moody's Corporation,MCO,0001059556,equity,organization,financial_instrument
+Morgan Stanley,MS,0000895421,equity,organization,financial_instrument
+Mosaic Company (The),MOS,0001285785,equity,organization,financial_instrument
+Motorola Solutions,MSI,0000068505,equity,organization,financial_instrument
+MSCI Inc.,MSCI,0001408198,equity,organization,financial_instrument
+"Nasdaq, Inc.",NDAQ,0001120193,equity,organization,financial_instrument
+NetApp,NTAP,0001002047,equity,organization,financial_instrument
+Netflix,NFLX,0001065280,equity,organization,financial_instrument
+Newmont,NEM,0001164727,equity,organization,financial_instrument
+News Corp (Class A),NWSA,0001564708,equity,organization,financial_instrument
+News Corp (Class B),NWS,0001564708,equity,organization,financial_instrument
+NextEra Energy,NEE,0000753308,equity,organization,financial_instrument
+"Nike, Inc.",NKE,0000320187,equity,organization,financial_instrument
+NiSource,NI,0001111711,equity,organization,financial_instrument
+Nordson Corporation,NDSN,0000072331,equity,organization,financial_instrument
+Norfolk Southern,NSC,0000702165,equity,organization,financial_instrument
+Northern Trust,NTRS,0000073124,equity,organization,financial_instrument
+Northrop Grumman,NOC,0001133421,equity,organization,financial_instrument
+Norwegian Cruise Line Holdings,NCLH,0001513761,equity,organization,financial_instrument
+NRG Energy,NRG,0001013871,equity,organization,financial_instrument
+Nucor,NUE,0000073309,equity,organization,financial_instrument
+Nvidia,NVDA,0001045810,equity,organization,financial_instrument
+"NVR, Inc.",NVR,0000906163,equity,organization,financial_instrument
+NXP Semiconductors,NXPI,0001413447,equity,organization,financial_instrument
+O’Reilly Automotive,ORLY,0000898173,equity,organization,financial_instrument
+Occidental Petroleum,OXY,0000797468,equity,organization,financial_instrument
+Old Dominion,ODFL,0000878927,equity,organization,financial_instrument
+Omnicom Group,OMC,0000029989,equity,organization,financial_instrument
+ON Semiconductor,ON,0001097864,equity,organization,financial_instrument
+Oneok,OKE,0001039684,equity,organization,financial_instrument
+Oracle Corporation,ORCL,0001341439,equity,organization,financial_instrument
+Otis Worldwide,OTIS,0001781335,equity,organization,financial_instrument
+Paccar,PCAR,0000075362,equity,organization,financial_instrument
+Packaging Corporation of America,PKG,0000075677,equity,organization,financial_instrument
+Palantir Technologies,PLTR,0001321655,equity,organization,financial_instrument
+Palo Alto Networks,PANW,0001327567,equity,organization,financial_instrument
+Paramount Skydance Corporation,PSKY,0002041610,equity,organization,financial_instrument
+Parker Hannifin,PH,0000076334,equity,organization,financial_instrument
+Paychex,PAYX,0000723531,equity,organization,financial_instrument
+PayPal,PYPL,0001633917,equity,organization,financial_instrument
+Pentair,PNR,0000077360,equity,organization,financial_instrument
+PepsiCo,PEP,0000077476,equity,organization,financial_instrument
+Pfizer,PFE,0000078003,equity,organization,financial_instrument
+PG&E Corporation,PCG,0001004980,equity,organization,financial_instrument
+Philip Morris International,PM,0001413329,equity,organization,financial_instrument
+Phillips 66,PSX,0001534701,equity,organization,financial_instrument
+Pinnacle West Capital,PNW,0000764622,equity,organization,financial_instrument
+PNC Financial Services,PNC,0000713676,equity,organization,financial_instrument
+Pool Corporation,POOL,0000945841,equity,organization,financial_instrument
+PPG Industries,PPG,0000079879,equity,organization,financial_instrument
+PPL Corporation,PPL,0000922224,equity,organization,financial_instrument
+Principal Financial Group,PFG,0001126328,equity,organization,financial_instrument
+Procter & Gamble,PG,0000080424,equity,organization,financial_instrument
+Progressive Corporation,PGR,0000080661,equity,organization,financial_instrument
+Prologis,PLD,0001045609,equity,organization,financial_instrument
+Prudential Financial,PRU,0001137774,equity,organization,financial_instrument
+Public Service Enterprise Group,PEG,0000788784,equity,organization,financial_instrument
+"PTC Inc."")",PTC,0000857005,equity,organization,financial_instrument
+Public Storage,PSA,0001393311,equity,organization,financial_instrument
+PulteGroup,PHM,0000822416,equity,organization,financial_instrument
+Quanta Services,PWR,0001050915,equity,organization,financial_instrument
+Qualcomm,QCOM,0000804328,equity,organization,financial_instrument
+Quest Diagnostics,DGX,0001022079,equity,organization,financial_instrument
+Qnity Electronics,Q,0002058873,equity,organization,financial_instrument
+Ralph Lauren Corporation,RL,0001037038,equity,organization,financial_instrument
+Raymond James Financial,RJF,0000720005,equity,organization,financial_instrument
+RTX Corporation,RTX,0000101829,equity,organization,financial_instrument
+Realty Income,O,0000726728,equity,organization,financial_instrument
+Regency Centers,REG,0000910606,equity,organization,financial_instrument
+Regeneron Pharmaceuticals,REGN,0000872589,equity,organization,financial_instrument
+Regions Financial Corporation,RF,0001281761,equity,organization,financial_instrument
+Republic Services,RSG,0001060391,equity,organization,financial_instrument
+ResMed,RMD,0000943819,equity,organization,financial_instrument
+Revvity,RVTY,0000031791,equity,organization,financial_instrument
+Robinhood Markets,HOOD,0001783879,equity,organization,financial_instrument
+Rockwell Automation,ROK,0001024478,equity,organization,financial_instrument
+"Rollins, Inc.",ROL,0000084839,equity,organization,financial_instrument
+Roper Technologies,ROP,0000882835,equity,organization,financial_instrument
+Ross Stores,ROST,0000745732,equity,organization,financial_instrument
+Royal Caribbean Group,RCL,0000884887,equity,organization,financial_instrument
+S&P Global,SPGI,0000064040,equity,organization,financial_instrument
+Salesforce,CRM,0001108524,equity,organization,financial_instrument
+Sandisk,SNDK,0002023554,equity,organization,financial_instrument
+SBA Communications,SBAC,0001034054,equity,organization,financial_instrument
+Schlumberger,SLB,0000087347,equity,organization,financial_instrument
+Seagate Technology,STX,0001137789,equity,organization,financial_instrument
+Sempra,SRE,0001032208,equity,organization,financial_instrument
+ServiceNow,NOW,0001373715,equity,organization,financial_instrument
+Sherwin-Williams,SHW,0000089800,equity,organization,financial_instrument
+Simon Property Group,SPG,0001063761,equity,organization,financial_instrument
+Skyworks Solutions,SWKS,0000004127,equity,organization,financial_instrument
+J.M. Smucker Company (The),SJM,0000091419,equity,organization,financial_instrument
+Smurfit Westrock,SW,0002005951,equity,organization,financial_instrument
+Snap-on,SNA,0000091440,equity,organization,financial_instrument
+Solventum,SOLV,0001964738,equity,organization,financial_instrument
+Southern Company,SO,0000092122,equity,organization,financial_instrument
+Southwest Airlines,LUV,0000092380,equity,organization,financial_instrument
+Stanley Black & Decker,SWK,0000093556,equity,organization,financial_instrument
+Starbucks,SBUX,0000829224,equity,organization,financial_instrument
+State Street Corporation,STT,0000093751,equity,organization,financial_instrument
+Steel Dynamics,STLD,0001022671,equity,organization,financial_instrument
+Steris,STE,0001757898,equity,organization,financial_instrument
+Stryker Corporation,SYK,0000310764,equity,organization,financial_instrument
+Supermicro,SMCI,0001375365,equity,organization,financial_instrument
+Synchrony Financial,SYF,0001601712,equity,organization,financial_instrument
+Synopsys,SNPS,0000883241,equity,organization,financial_instrument
+Sysco,SYY,0000096021,equity,organization,financial_instrument
+T-Mobile US,TMUS,0001283699,equity,organization,financial_instrument
+T. Rowe Price,TROW,0001113169,equity,organization,financial_instrument
+Take-Two Interactive,TTWO,0000946581,equity,organization,financial_instrument
+"Tapestry, Inc.",TPR,0001116132,equity,organization,financial_instrument
+Targa Resources,TRGP,0001389170,equity,organization,financial_instrument
+Target Corporation,TGT,0000027419,equity,organization,financial_instrument
+TE Connectivity,TEL,0001385157,equity,organization,financial_instrument
+Teledyne Technologies,TDY,0001094285,equity,organization,financial_instrument
+Teradyne,TER,0000097210,equity,organization,financial_instrument
+"Tesla, Inc.",TSLA,0001318605,equity,organization,financial_instrument
+Texas Instruments,TXN,0000097476,equity,organization,financial_instrument
+Texas Pacific Land Corporation,TPL,0001811074,equity,organization,financial_instrument
+Textron,TXT,0000217346,equity,organization,financial_instrument
+Thermo Fisher Scientific,TMO,0000097745,equity,organization,financial_instrument
+TJX Companies,TJX,0000109198,equity,organization,financial_instrument
+TKO Group Holdings,TKO,0001973266,equity,organization,financial_instrument
+Trade Desk (The),TTD,0001671933,equity,organization,financial_instrument
+Tractor Supply,TSCO,0000916365,equity,organization,financial_instrument
+Trane Technologies,TT,0001466258,equity,organization,financial_instrument
+TransDigm Group,TDG,0001260221,equity,organization,financial_instrument
+Travelers Companies (The),TRV,0000086312,equity,organization,financial_instrument
+Trimble Inc.,TRMB,0000864749,equity,organization,financial_instrument
+Truist Financial,TFC,0000092230,equity,organization,financial_instrument
+Tyler Technologies,TYL,0000860731,equity,organization,financial_instrument
+Tyson Foods,TSN,0000100493,equity,organization,financial_instrument
+U.S. Bancorp,USB,0000036104,equity,organization,financial_instrument
+Uber,UBER,0001543151,equity,organization,financial_instrument
+"UDR, Inc.",UDR,0000074208,equity,organization,financial_instrument
+Ulta Beauty,ULTA,0001403568,equity,organization,financial_instrument
+Union Pacific Corporation,UNP,0000100885,equity,organization,financial_instrument
+United Airlines Holdings,UAL,0000100517,equity,organization,financial_instrument
+United Parcel Service,UPS,0001090727,equity,organization,financial_instrument
+United Rentals,URI,0001067701,equity,organization,financial_instrument
+UnitedHealth Group,UNH,0000731766,equity,organization,financial_instrument
+Universal Health Services,UHS,0000352915,equity,organization,financial_instrument
+Valero Energy,VLO,0001035002,equity,organization,financial_instrument
+"Ventas"")",VTR,0000740260,equity,organization,financial_instrument
+Veralto,VLTO,0001967680,equity,organization,financial_instrument
+Verisign,VRSN,0001014473,equity,organization,financial_instrument
+Verisk Analytics,VRSK,0001442145,equity,organization,financial_instrument
+Verizon,VZ,0000732712,equity,organization,financial_instrument
+Vertex Pharmaceuticals,VRTX,0000875320,equity,organization,financial_instrument
+Vertiv,VRT,0001674101,equity,organization,financial_instrument
+Viatris,VTRS,0001792044,equity,organization,financial_instrument
+Vici Properties,VICI,0001705696,equity,organization,financial_instrument
+Visa Inc.,V,0001403161,equity,organization,financial_instrument
+Vistra Corp.,VST,0001692819,equity,organization,financial_instrument
+Vulcan Materials Company,VMC,0001396009,equity,organization,financial_instrument
+W. R. Berkley Corporation,WRB,0000011544,equity,organization,financial_instrument
+W. W. Grainger,GWW,0000277135,equity,organization,financial_instrument
+Wabtec,WAB,0000943452,equity,organization,financial_instrument
+Walmart,WMT,0000104169,equity,organization,financial_instrument
+Walt Disney Company (The),DIS,0001744489,equity,organization,financial_instrument
+Warner Bros. Discovery,WBD,0001437107,equity,organization,financial_instrument
+Waste Management,WM,0000823768,equity,organization,financial_instrument
+Waters Corporation,WAT,0001000697,equity,organization,financial_instrument
+WEC Energy Group,WEC,0000783325,equity,organization,financial_instrument
+Wells Fargo,WFC,0000072971,equity,organization,financial_instrument
+Welltower,WELL,0000766704,equity,organization,financial_instrument
+West Pharmaceutical Services,WST,0000105770,equity,organization,financial_instrument
+Western Digital,WDC,0000106040,equity,organization,financial_instrument
+Weyerhaeuser,WY,0000106535,equity,organization,financial_instrument
+"Williams-Sonoma, Inc.",WSM,0000719955,equity,organization,financial_instrument
+Williams Companies,WMB,0000107263,equity,organization,financial_instrument
+Willis Towers Watson,WTW,0001140536,equity,organization,financial_instrument
+"Workday, Inc.",WDAY,0001327811,equity,organization,financial_instrument
+Wynn Resorts,WYNN,0001174922,equity,organization,financial_instrument
+Xcel Energy,XEL,0000072903,equity,organization,financial_instrument
+Xylem Inc.,XYL,0001524472,equity,organization,financial_instrument
+Yum! Brands,YUM,0001041061,equity,organization,financial_instrument
+Zebra Technologies,ZBRA,0000877212,equity,organization,financial_instrument
+Zimmer Biomet,ZBH,0001136869,equity,organization,financial_instrument
+Zoetis,ZTS,0001555280,equity,organization,financial_instrument

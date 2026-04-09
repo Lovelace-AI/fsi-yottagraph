@@ -500,6 +500,7 @@ export function resolutionResultToEntity(
     sourceType: ProjectEntity['sourceType'],
     rationale?: string
 ): ProjectEntity {
+    const mergedRationale = [rationale, result.resolutionNote].filter(Boolean).join(' | ');
     return {
         neid: result.neid || `unresolved_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
         name: result.name,
@@ -515,7 +516,10 @@ export function resolutionResultToEntity(
         sourceType,
         resolved: result.matched,
         resolvedAt: result.matched ? new Date().toISOString() : undefined,
-        rationale,
+        rationale: mergedRationale || undefined,
+        resolutionNote: result.resolutionNote,
+        canonicalNeid: result.canonicalNeid,
+        canonicalName: result.canonicalName,
         addedAt: new Date().toISOString(),
         addedBy: 'system',
     };

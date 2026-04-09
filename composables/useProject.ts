@@ -22,6 +22,8 @@ interface ProjectEntity {
     entityType: string;
     cik?: string;
     ticker?: string;
+    exchange?: string;
+    securityType?: string;
     lei?: string;
     matchMethod?: string;
     confidence?: number;
@@ -29,6 +31,41 @@ interface ProjectEntity {
     sourceType?: string;
     resolved?: boolean;
     rationale?: string;
+    resolutionNote?: string;
+    canonicalNeid?: string;
+    canonicalName?: string;
+    instrumentHistory?: {
+        tickerSymbolHistory: {
+            value: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+            ref?: string;
+        }[];
+        exchangeHistory: {
+            value: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+            ref?: string;
+        }[];
+        companyNameHistory: {
+            value: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+            ref?: string;
+        }[];
+        securityTypeHistory: {
+            value: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+            ref?: string;
+        }[];
+        predecessorInstruments: {
+            neid: string;
+            name?: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+        }[];
+    };
     addedAt: string;
     addedBy: string;
     score?: EntityScore | null;

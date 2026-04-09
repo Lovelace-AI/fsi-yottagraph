@@ -57,6 +57,15 @@
                             Run Scan
                         </v-btn>
                         <v-spacer />
+                        <v-chip
+                            :color="showConflictOnly ? 'warning' : undefined"
+                            :variant="showConflictOnly ? 'flat' : 'outlined'"
+                            size="small"
+                            class="cursor-pointer"
+                            @click="showConflictOnly = !showConflictOnly"
+                        >
+                            {{ conflictCount }} merge conflict{{ conflictCount === 1 ? '' : 's' }}
+                        </v-chip>
                         <v-btn color="primary" prepend-icon="mdi-robot" @click="openAgents">
                             Open Agents
                         </v-btn>
@@ -71,7 +80,7 @@
 
                     <v-data-table
                         :headers="entityHeaders"
-                        :items="enrichedEntities"
+                        :items="filteredEntities"
                         density="comfortable"
                         hover
                         @click:row="(_: any, { item }: any) => openEntity(item)"
@@ -90,6 +99,19 @@
                             </v-chip>
                         </template>
                         <template #item.actions="{ item }">
+                            <v-tooltip v-if="item.resolutionNote" location="top">
+                                <template #activator="{ props: tooltipProps }">
+                                    <v-btn
+                                        v-bind="tooltipProps"
+                                        size="x-small"
+                                        color="warning"
+                                        variant="text"
+                                        icon="mdi-alert-outline"
+                                        @click.stop
+                                    />
+                                </template>
+                                {{ item.resolutionNote }}
+                            </v-tooltip>
                             <v-btn
                                 size="x-small"
                                 variant="text"
@@ -195,6 +217,89 @@
                         </v-list-item>
                     </v-list>
                 </div>
+
+                <v-alert
+                    v-if="selectedEntity.resolutionNote"
+                    type="warning"
+                    variant="tonal"
+                    density="compact"
+                    class="mt-4"
+                >
+                    {{ selectedEntity.resolutionNote }}
+                </v-alert>
+
+                <div v-if="selectedEntity.instrumentHistory" class="mt-4">
+                    <div class="text-subtitle-2 mb-2">Trading Identity History</div>
+                    <v-row dense>
+                        <v-col cols="12" md="6">
+                            <v-card variant="outlined">
+                                <v-card-title class="text-body-2">Ticker History</v-card-title>
+                                <v-list density="compact">
+                                    <v-list-item
+                                        v-for="entry in selectedEntity.instrumentHistory
+                                            .tickerSymbolHistory"
+                                        :key="`ticker-${entry.value}-${entry.effectiveFrom}`"
+                                    >
+                                        <v-list-item-title>{{ entry.value }}</v-list-item-title>
+                                        <v-list-item-subtitle>
+                                            {{
+                                                formatHistoryRange(
+                                                    entry.effectiveFrom,
+                                                    entry.lastSeenAt
+                                                )
+                                            }}
+                                        </v-list-item-subtitle>
+                                    </v-list-item>
+                                </v-list>
+                            </v-card>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                            <v-card variant="outlined">
+                                <v-card-title class="text-body-2">Exchange History</v-card-title>
+                                <v-list density="compact">
+                                    <v-list-item
+                                        v-for="entry in selectedEntity.instrumentHistory
+                                            .exchangeHistory"
+                                        :key="`exchange-${entry.value}-${entry.effectiveFrom}`"
+                                    >
+                                        <v-list-item-title>{{ entry.value }}</v-list-item-title>
+                                        <v-list-item-subtitle>
+                                            {{
+                                                formatHistoryRange(
+                                                    entry.effectiveFrom,
+                                                    entry.lastSeenAt
+                                                )
+                                            }}
+                                        </v-list-item-subtitle>
+                                    </v-list-item>
+                                </v-list>
+                            </v-card>
+                        </v-col>
+                    </v-row>
+
+                    <v-card
+                        v-if="selectedEntity.instrumentHistory.predecessorInstruments?.length"
+                        variant="outlined"
+                        class="mt-3"
+                    >
+                        <v-card-title class="text-body-2">Predecessor Instruments</v-card-title>
+                        <v-list density="compact">
+                            <v-list-item
+                                v-for="entry in selectedEntity.instrumentHistory
+                                    .predecessorInstruments"
+                                :key="`pred-${entry.neid}`"
+                            >
+                                <v-list-item-title>
+                                    {{ entry.name || entry.neid }}
+                                </v-list-item-title>
+                                <v-list-item-subtitle>
+                                    {{ entry.neid }} ·
+                                    {{ formatHistoryRange(entry.effectiveFrom, entry.lastSeenAt) }}
+                                </v-list-item-subtitle>
+                            </v-list-item>
+                        </v-list>
+                    </v-card>
+                </div>
             </v-card-text>
             <v-card-actions>
                 <v-spacer />
@@ -234,6 +339,7 @@
     const selectedEntity = ref<any>(null);
     const resolving = ref(false);
     const scanning = ref(false);
+    const showConflictOnly = ref(false);
 
     const currentProject = computed(() => {
         if (
@@ -264,6 +370,17 @@
             drivers: entity.score?.drivers ?? [],
         }))
     );
+
+    const conflictCount = computed(
+        () => enrichedEntities.value.filter((entity) => Boolean(entity.resolutionNote)).length
+    );
+
+    const filteredEntities = computed(() => {
+        if (!showConflictOnly.value) {
+            return enrichedEntities.value;
+        }
+        return enrichedEntities.value.filter((entity) => Boolean(entity.resolutionNote));
+    });
 
     function updateOpen(value: boolean) {
         emit('update:modelValue', value);
@@ -320,5 +437,11 @@
             pending: 'grey',
         };
         return colors[severity] || 'grey';
+    }
+
+    function formatHistoryRange(start: string, end: string): string {
+        const startLabel = start ? new Date(start).toLocaleDateString() : 'Unknown start';
+        const endLabel = end ? new Date(end).toLocaleDateString() : 'Unknown end';
+        return startLabel === endLabel ? startLabel : `${startLabel} to ${endLabel}`;
     }
 </script>

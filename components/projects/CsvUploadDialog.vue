@@ -37,6 +37,16 @@
                     variant="outlined"
                     density="comfortable"
                 />
+                <v-select
+                    v-model="resolveAs"
+                    :items="entityTypeOptions"
+                    item-title="label"
+                    item-value="value"
+                    label="Primary entity type (resolution hint)"
+                    variant="outlined"
+                    density="comfortable"
+                    class="mt-3 mb-2"
+                />
                 <div class="text-caption text-grey">
                     No fixed column format required. Gemini analyzes your headers and data to
                     identify entities automatically.
@@ -117,6 +127,10 @@
                                 {{ value ? 'mdi-check-circle' : 'mdi-close-circle' }}
                             </v-icon>
                         </template>
+                        <template #item.entityTypeHint="{ value }">
+                            <v-chip v-if="value" size="x-small" variant="tonal">{{ value }}</v-chip>
+                            <span v-else class="text-grey">auto</span>
+                        </template>
                         <template #item.confidence="{ value }">
                             {{ (value * 100).toFixed(0) }}%
                         </template>
@@ -132,9 +146,23 @@
                             <v-chip v-if="value" size="x-small" variant="tonal">{{ value }}</v-chip>
                             <span v-else class="text-grey">—</span>
                         </template>
+                        <template #item.entityTypeHint="{ value }">
+                            <v-chip v-if="value" size="x-small" variant="tonal">{{ value }}</v-chip>
+                            <span v-else class="text-grey">auto</span>
+                        </template>
+                        <template #item.secondaryEntityTypeHint="{ value }">
+                            <v-chip v-if="value" size="x-small" variant="outlined">{{
+                                value
+                            }}</v-chip>
+                            <span v-else class="text-grey">—</span>
+                        </template>
                     </v-data-table>
                 </div>
             </div>
+
+            <v-alert v-if="importError" type="error" variant="tonal" density="compact" class="mt-4">
+                {{ importError }}
+            </v-alert>
         </v-card-text>
 
         <v-card-actions>
@@ -181,9 +209,19 @@
     const interpreting = ref(false);
     const resolving = ref(false);
     const importing = ref(false);
+    const importError = ref('');
+    const resolveAs = ref<'auto' | 'organization' | 'financial_instrument' | 'person'>('auto');
+
+    const entityTypeOptions = [
+        { label: 'Auto detect', value: 'auto' },
+        { label: 'Organization / company', value: 'organization' },
+        { label: 'Financial instrument / stock', value: 'financial_instrument' },
+        { label: 'Person', value: 'person' },
+    ];
 
     const resolutionHeaders = [
         { title: 'Name', key: 'name' },
+        { title: 'Primary Hint', key: 'entityTypeHint' },
         { title: 'Matched', key: 'matched', align: 'center' as const },
         { title: 'Method', key: 'matchMethod' },
         { title: 'Confidence', key: 'confidence', align: 'center' as const },
@@ -194,6 +232,8 @@
         { title: 'Name', key: 'name' },
         { title: 'Ticker', key: 'ticker' },
         { title: 'CIK', key: 'cik' },
+        { title: 'Primary Hint', key: 'entityTypeHint' },
+        { title: 'Secondary Hint', key: 'secondaryEntityTypeHint' },
         { title: 'LEI', key: 'lei' },
         { title: 'Identifiers', key: 'idCount', align: 'center' as const },
     ];
@@ -208,12 +248,13 @@
 
     async function interpretCsv() {
         if (!csvText.value.trim()) return;
+        importError.value = '';
         interpreting.value = true;
         step.value = 2;
         try {
             preview.value = await $fetch(`/api/v2/projects/${props.projectId}/csv-preview`, {
                 method: 'POST',
-                body: { csvText: csvText.value },
+                body: { csvText: csvText.value, desiredEntityType: resolveAs.value },
                 timeout: 60000,
             });
         } catch (e: any) {
@@ -223,11 +264,12 @@
     }
 
     async function resolveEntities() {
+        importError.value = '';
         resolving.value = true;
         try {
             preview.value = await $fetch(`/api/v2/projects/${props.projectId}/csv-preview`, {
                 method: 'POST',
-                body: { csvText: csvText.value, resolve: true },
+                body: { csvText: csvText.value, resolve: true, desiredEntityType: resolveAs.value },
                 timeout: 120000,
             });
         } catch (e: any) {
@@ -240,6 +282,7 @@
     }
 
     async function importEntities() {
+        importError.value = '';
         importing.value = true;
         try {
             const entitiesToImport = preview.value.allEntities || preview.value.entities || [];
@@ -252,6 +295,9 @@
                 cusip: e.cusip,
                 figi: e.figi,
                 isin: e.isin,
+                entityTypeHint:
+                    e.entityTypeHint || (resolveAs.value !== 'auto' ? resolveAs.value : undefined),
+                secondaryEntityTypeHint: e.secondaryEntityTypeHint,
             }));
             await $fetch(`/api/v2/projects/${props.projectId}/entities`, {
                 method: 'POST',
@@ -259,8 +305,9 @@
                 timeout: 120000,
             });
             emit('imported', batch.length);
-        } catch {
-            // handled by parent
+        } catch (e: any) {
+            importError.value =
+                e?.data?.statusMessage || e?.message || 'Import failed. Please try again.';
         }
         importing.value = false;
     }

@@ -23,6 +23,8 @@ export interface ProjectEntity {
     entityType: string;
     cik?: string;
     ticker?: string;
+    exchange?: string;
+    securityType?: string;
     lei?: string;
     figi?: string;
     cusip?: string;
@@ -43,6 +45,41 @@ export interface ProjectEntity {
     resolved: boolean;
     resolvedAt?: string;
     rationale?: string;
+    resolutionNote?: string;
+    canonicalNeid?: string;
+    canonicalName?: string;
+    instrumentHistory?: {
+        tickerSymbolHistory: {
+            value: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+            ref?: string;
+        }[];
+        exchangeHistory: {
+            value: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+            ref?: string;
+        }[];
+        companyNameHistory: {
+            value: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+            ref?: string;
+        }[];
+        securityTypeHistory: {
+            value: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+            ref?: string;
+        }[];
+        predecessorInstruments: {
+            neid: string;
+            name?: string;
+            effectiveFrom: string;
+            lastSeenAt: string;
+        }[];
+    };
     addedAt: string;
     addedBy: string;
 }
@@ -89,6 +126,9 @@ export interface ResolutionResult {
         figi?: string;
         cusip?: string;
     };
+    resolutionNote?: string;
+    canonicalNeid?: string;
+    canonicalName?: string;
 }
 
 export interface ResolutionStats {

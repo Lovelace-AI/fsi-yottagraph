@@ -11,7 +11,10 @@ interface ResolutionInput {
     cusip?: string;
     figi?: string;
     isin?: string;
+    entityTypeHint?: EntityTypeHint;
 }
+
+export type EntityTypeHint = 'organization' | 'financial_instrument' | 'person';
 
 interface AgentResolutionJson {
     results?: Array<{
@@ -75,7 +78,9 @@ function normalizeResolution(input: ResolutionInput, candidate: any): Resolution
         name: matched ? String(candidate?.name || input.name) : input.name,
         matched,
         neid: matched ? String(candidate.neid) : undefined,
-        entityType: matched ? String(candidate?.entityType || 'organization') : undefined,
+        entityType: matched
+            ? String(candidate?.entityType || input.entityTypeHint || 'organization')
+            : undefined,
         confidence,
         matchMethod,
         resolutionStrength: countIdentifiers(matched ? String(candidate.neid) : undefined, {
@@ -132,7 +137,8 @@ Return this exact shape:
 Rules:
 - Preserve the same result ordering as input.
 - If unresolved, set matched=false and matchMethod=\"unresolved\".
-- Do not fabricate identifiers when unknown.`;
+- Do not fabricate identifiers when unknown.
+- If an item includes entityTypeHint, strongly prefer candidates matching that flavor.`;
 }
 
 export async function resolveBatchAgentFirst(
@@ -157,7 +163,9 @@ export async function resolveBatchAgentFirst(
 
         if (unresolvedIdx.length > 0) {
             const fallbackInputs = unresolvedIdx.map((idx) => items[idx]);
-            const fallbackResolved = await resolveBatch(fallbackInputs);
+            const fallbackResolved = await resolveBatch(
+                fallbackInputs.map(({ entityTypeHint: _hint, ...rest }) => rest)
+            );
             for (let i = 0; i < unresolvedIdx.length; i++) {
                 const targetIdx = unresolvedIdx[i];
                 const fallback = fallbackResolved[i];
@@ -170,7 +178,7 @@ export async function resolveBatchAgentFirst(
         return normalized;
     }
 
-    return await resolveBatch(items);
+    return await resolveBatch(items.map(({ entityTypeHint: _hint, ...rest }) => rest));
 }
 
 export async function resolveEntityAgentFirst(
@@ -180,5 +188,6 @@ export async function resolveEntityAgentFirst(
     const input: ResolutionInput = { name, ...providedIds };
     const batch = await resolveBatchAgentFirst([input]);
     if (batch[0]?.matched) return batch[0];
-    return await resolveEntity(name, providedIds);
+    const { entityTypeHint: _hint, ...fallbackIds } = providedIds || {};
+    return await resolveEntity(name, fallbackIds);
 }
