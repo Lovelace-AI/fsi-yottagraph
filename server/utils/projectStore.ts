@@ -185,6 +185,40 @@ export interface AgentTrace {
     summary: string;
 }
 
+export interface ImportSessionRow {
+    name: string;
+    ticker?: string;
+    cik?: string;
+    lei?: string;
+    ein?: string;
+    cusip?: string;
+    figi?: string;
+    isin?: string;
+    rationale?: string;
+    entityTypeHint?: 'organization' | 'financial_instrument' | 'person';
+    secondaryEntityTypeHint?: 'organization' | 'financial_instrument' | 'person';
+}
+
+export interface ImportSession {
+    id: string;
+    projectId: string;
+    sourceType: ProjectEntity['sourceType'];
+    status: 'pending' | 'running' | 'complete' | 'error';
+    totalRows: number;
+    processedRows: number;
+    batchSize: number;
+    rows: ImportSessionRow[];
+    addedEntities: number;
+    resolvedEntities: number;
+    conflictFlags: number;
+    instrumentsWithHistory: number;
+    lastDetail?: string;
+    error?: string;
+    startedAt: string;
+    updatedAt: string;
+    completedAt?: string;
+}
+
 const PREFIX = 'v2';
 
 // In-memory fallback for local dev (when KV is not configured)
@@ -426,6 +460,34 @@ export async function saveSession(projectId: string, session: AgentSession): Pro
         sessions.splice(0, sessions.length - 100);
     }
     await kvSet(`${PREFIX}:project:${projectId}:sessions`, sessions);
+}
+
+// --- Import Sessions ---
+
+export async function listImportSessions(projectId: string): Promise<ImportSession[]> {
+    return (await kvGet<ImportSession[]>(`${PREFIX}:project:${projectId}:import_sessions`)) ?? [];
+}
+
+export async function getImportSession(
+    projectId: string,
+    sessionId: string
+): Promise<ImportSession | null> {
+    const sessions = await listImportSessions(projectId);
+    return sessions.find((session) => session.id === sessionId) ?? null;
+}
+
+export async function saveImportSession(projectId: string, session: ImportSession): Promise<void> {
+    const sessions = await listImportSessions(projectId);
+    const idx = sessions.findIndex((s) => s.id === session.id);
+    if (idx >= 0) {
+        sessions[idx] = session;
+    } else {
+        sessions.push(session);
+    }
+    if (sessions.length > 50) {
+        sessions.splice(0, sessions.length - 50);
+    }
+    await kvSet(`${PREFIX}:project:${projectId}:import_sessions`, sessions);
 }
 
 // --- Cache ---

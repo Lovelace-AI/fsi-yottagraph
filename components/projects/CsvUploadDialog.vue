@@ -163,6 +163,20 @@
             <v-alert v-if="importError" type="error" variant="tonal" density="compact" class="mt-4">
                 {{ importError }}
             </v-alert>
+
+            <div v-if="importSession" class="mt-4">
+                <v-progress-linear
+                    :model-value="importProgress"
+                    color="primary"
+                    height="10"
+                    rounded
+                    class="mb-2"
+                />
+                <div class="text-caption text-grey">
+                    {{ importSession.processedRows }} / {{ importSession.totalRows }} rows processed
+                    <span v-if="importSession.lastDetail"> · {{ importSession.lastDetail }}</span>
+                </div>
+            </div>
         </v-card-text>
 
         <v-card-actions>
@@ -211,6 +225,7 @@
     const importing = ref(false);
     const importError = ref('');
     const resolveAs = ref<'auto' | 'organization' | 'financial_instrument' | 'person'>('auto');
+    const importSession = ref<any>(null);
 
     const entityTypeOptions = [
         { label: 'Auto detect', value: 'auto' },
@@ -237,6 +252,13 @@
         { title: 'LEI', key: 'lei' },
         { title: 'Identifiers', key: 'idCount', align: 'center' as const },
     ];
+
+    const importProgress = computed(() => {
+        if (!importSession.value?.totalRows) return 0;
+        return Math.round(
+            (importSession.value.processedRows / importSession.value.totalRows) * 100
+        );
+    });
 
     async function handleFileUpload(files: File | File[] | null) {
         if (!files) return;
@@ -284,9 +306,10 @@
     async function importEntities() {
         importError.value = '';
         importing.value = true;
+        importSession.value = null;
         try {
             const entitiesToImport = preview.value.allEntities || preview.value.entities || [];
-            const batch = entitiesToImport.map((e: any) => ({
+            const rows = entitiesToImport.map((e: any) => ({
                 name: e.name,
                 ticker: e.ticker,
                 cik: e.cik,
@@ -299,12 +322,37 @@
                     e.entityTypeHint || (resolveAs.value !== 'auto' ? resolveAs.value : undefined),
                 secondaryEntityTypeHint: e.secondaryEntityTypeHint,
             }));
-            await $fetch(`/api/v2/projects/${props.projectId}/entities`, {
-                method: 'POST',
-                body: { batch, sourceType: 'csv' },
-                timeout: 120000,
-            });
-            emit('imported', batch.length);
+
+            const startRes = await $fetch<{ session: any }>(
+                `/api/v2/projects/${props.projectId}/import-sessions`,
+                {
+                    method: 'POST',
+                    body: { rows, sourceType: 'csv', batchSize: 2 },
+                    timeout: 30000,
+                }
+            );
+            importSession.value = startRes.session;
+
+            while (
+                importSession.value &&
+                importSession.value.status !== 'complete' &&
+                importSession.value.status !== 'error'
+            ) {
+                const processRes = await $fetch<{ session: any }>(
+                    `/api/v2/projects/${props.projectId}/import-sessions/${importSession.value.id}/process`,
+                    {
+                        method: 'POST',
+                        timeout: 120000,
+                    }
+                );
+                importSession.value = processRes.session;
+            }
+
+            if (importSession.value?.status === 'error') {
+                throw new Error(importSession.value.error || 'Import session failed');
+            }
+
+            emit('imported', importSession.value?.addedEntities || rows.length);
         } catch (e: any) {
             importError.value =
                 e?.data?.statusMessage || e?.message || 'Import failed. Please try again.';
